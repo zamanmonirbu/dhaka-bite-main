@@ -41,7 +41,7 @@ const categories = data?.data || []
               onClick={() => router.push("/prebooking")}
             >
               <div className="relative h-48 w-full overflow-hidden">
-                <Image src="/catering.png" alt="Prebooking" fill className="object-cover" />
+                <Image src="https://res.cloudinary.com/dv4ouaclr/image/upload/v1751056434/meals/image-1751056430717-8008852-Screenshot%20from%202025-06-28%2002-29-36.png.png" alt="Prebooking" fill className="object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
                   <h3 className="text-xl font-bold text-white p-4">Prebooking</h3>
                 </div>

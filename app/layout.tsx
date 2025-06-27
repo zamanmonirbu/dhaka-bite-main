@@ -1,9 +1,8 @@
+// app/layout.tsx
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import ReduxProvider from "@/components/providers/ReduxProvider"
-import AuthProvider from "@/components/providers/AuthProvider"
-import ClientLayout from "@/components/layouts/ClientLayout"
+import RootClientWrapper from "@/components/layouts/RootClientWrapper"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -20,11 +19,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href="/dhaka-bite-logo.svg" type="image/svg+xml" />
       </head>
       <body className={inter.className}>
-        <ReduxProvider>
-          <AuthProvider>
-            <ClientLayout>{children}</ClientLayout>
-          </AuthProvider>
-        </ReduxProvider>
+        <RootClientWrapper>
+          {children}
+        </RootClientWrapper>
       </body>
     </html>
   )
