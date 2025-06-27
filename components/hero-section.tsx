@@ -53,7 +53,7 @@ export default function HeroSection() {
   }
 
   return (
-    <section className="relative w-full h-screen overflow-hidden">
+    <section className="relative w-full max-h-[35vh] h-[35vh] overflow-hidden y-20">
       {/* Background Carousel Images */}
       <div className="absolute inset-0 w-full h-full">
         {carouselImages.map((image, index) => (
@@ -73,59 +73,57 @@ export default function HeroSection() {
       </div>
 
       {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black/40"></div>
+      <div className="absolute inset-0 bg-black/40" />
 
       {/* Content */}
       <div className="relative z-30 h-full flex items-center justify-start">
-        <div className="container-custom">
+        <div className="container-custom w-full">
           <div className="max-w-4xl">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-              Healthy, affordable meals that taste like home — only at{" "}
-              <span className="text-secondary">Dhaka Bite.</span>
-            </h1>
-
-            <div className="flex flex-col sm:flex-row gap-4 mb-12">
-              <Link href="/all-package/foods" className="btn-primary text-lg px-8 py-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-10">
+              <Link
+                href="/all-package/foods"
+                className="btn-primary text-sm sm:text-base px-5 sm:px-8 py-3 sm:py-4"
+              >
                 Order Now
               </Link>
               <button
                 onClick={handleContactClick}
-                className="bg-white/10 backdrop-blur-sm text-white border border-white/30 font-medium py-4 px-8 rounded-md hover:bg-white/20 transition-all flex items-center justify-center gap-2 relative text-lg"
+                className="bg-white/10 backdrop-blur-sm text-white border border-white/30 font-medium py-3 sm:py-4 px-5 sm:px-8 rounded-md hover:bg-white/20 transition-all flex items-center justify-center gap-2 relative text-sm sm:text-base"
               >
-                <Phone size={20} />
+                <Phone size={18} className="sm:size-5" />
                 <span>Contact Now</span>
                 {showCopiedMessage && (
-                  <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-3 py-1 rounded-md text-sm whitespace-nowrap z-10">
+                  <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-3 py-1 rounded-md text-xs sm:text-sm whitespace-nowrap z-10">
                     Phone number copied!
                   </div>
                 )}
               </button>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex gap-3 sm:gap-4">
               <Link
                 href="https://www.facebook.com/share/1BBhiDmhEj/"
-                className="bg-white/10 backdrop-blur-sm text-white p-3 rounded-md hover:bg-white/20 transition-colors border border-white/30"
+                className="bg-white/10 backdrop-blur-sm text-white p-2 sm:p-3 rounded-md hover:bg-white/20 transition-colors border border-white/30"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Facebook size={24} />
+                <Facebook size={20} className="sm:size-6" />
               </Link>
               <Link
                 href="https://www.instagram.com/dhakabite?igsh=MXNpNzN3ejJwZzExdw=="
-                className="bg-white/10 backdrop-blur-sm text-white p-3 rounded-md hover:bg-white/20 transition-colors border border-white/30"
+                className="bg-white/10 backdrop-blur-sm text-white p-2 sm:p-3 rounded-md hover:bg-white/20 transition-colors border border-white/30"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Instagram size={24} />
+                <Instagram size={20} className="sm:size-6" />
               </Link>
               <Link
                 href="https://www.tiktok.com/@dhaka_bite?_t=ZS-8wsWsjYPj8i&_r=1"
-                className="bg-white/10 backdrop-blur-sm text-white p-3 rounded-md hover:bg-white/20 transition-colors border border-white/30"
+                className="bg-white/10 backdrop-blur-sm text-white p-2 sm:p-3 rounded-md hover:bg-white/20 transition-colors border border-white/30"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <SiTiktok size={24} />
+                <SiTiktok size={20} className="sm:size-6" />
               </Link>
             </div>
           </div>
@@ -135,24 +133,24 @@ export default function HeroSection() {
       {/* Navigation Arrows */}
       <button
         onClick={prevImage}
-        className="hidden sm:flex absolute left-6 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-colors z-20 border border-white/30"
+        className="hidden sm:flex absolute left-3 sm:left-6 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm text-white p-2 sm:p-3 rounded-full hover:bg-white/30 transition-colors z-20 border border-white/30"
       >
-        <ChevronLeft size={24} />
+        <ChevronLeft size={20} className="sm:size-6" />
       </button>
       <button
         onClick={nextImage}
-        className="hidden sm:flex absolute right-6 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-colors z-20 border border-white/30"
+        className="hidden sm:flex absolute right-3 sm:right-6 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm text-white p-2 sm:p-3 rounded-full hover:bg-white/30 transition-colors z-20 border border-white/30"
       >
-        <ChevronRight size={24} />
+        <ChevronRight size={20} className="sm:size-6" />
       </button>
 
       {/* Dots Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3 z-20">
+      <div className="absolute bottom-3 sm:bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2 sm:space-x-3 z-20">
         {carouselImages.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentImageIndex(index)}
-            className={`w-4 h-4 rounded-full transition-all border-2 ${
+            className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-all border-2 ${
               index === currentImageIndex
                 ? "bg-secondary border-secondary"
                 : "bg-white/30 border-white/50 hover:bg-white/50"

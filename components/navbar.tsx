@@ -61,9 +61,17 @@ export default function Navbar() {
       <nav className="bg-white py-4 shadow-sm">
         <div className="container-custom flex justify-between items-center">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <span className="text-secondary text-2xl font-bold">dhaka bite</span>
-          </Link>
+         <Link href="/" className="flex items-center">
+  <Image
+    src="/dhaka-bite.svg"
+    alt="Dhaka Bite Logo"
+    width={40}  // ⬅️ Increased for better visibility
+    height={40}
+    priority // ⬅️ Improves load performance
+    className="h-auto w-auto object-contain" // ⬅️ Keeps aspect ratio cleanly
+  />
+</Link>
+
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center space-x-8">
@@ -82,7 +90,12 @@ export default function Navbar() {
                 <CreditCard size={16} className="relative z-10" />
                 <span className="relative z-10">
                   <span className="group-hover:hidden">Check Balance</span>
-                  <span className="hidden group-hover:inline">৳{user?.balance?.toLocaleString() || "0"}</span>
+                  <span className="hidden group-hover:inline">
+                    ৳{user?.balance?.toLocaleString() || "0"}
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  </span>
                 </span>
               </button>
             )}
@@ -138,13 +151,19 @@ export default function Navbar() {
 
           {/* Mobile */}
           <div className="md:hidden flex items-center space-x-4">
-            {/* Balance */}
             {isAuthenticated && hasMounted && (
-              <button className="flex items-center gap-1 text-primary text-sm border border-primary px-3 py-1 rounded-full">
-                <CreditCard size={16} />
-                <span>৳{user?.balance?.toLocaleString() || "0"}</span>
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="relative text-primary text-sm border border-primary px-3 py-1 rounded-full w-[140px] text-center transition-colors"
+              >
+                {isDropdownOpen ? (
+                  <span>৳{user?.balance?.toLocaleString() || "0"}</span>
+                ) : (
+                  <span>Check Balance</span>
+                )}
               </button>
             )}
+
 
             {/* Cart */}
             <div className="relative">

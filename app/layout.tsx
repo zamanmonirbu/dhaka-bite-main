@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/fav.png" type="image/png" />
+        <link rel="icon" href="/dhaka-bite-logo.svg" type="image/svg+xml" />
       </head>
       <body className={inter.className}>
         <ReduxProvider>
