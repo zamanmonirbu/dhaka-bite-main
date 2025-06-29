@@ -3,13 +3,13 @@ import { baseApi } from "./baseApi";
 export const locationApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getLocation: builder.query<{ success: boolean; data: Location }, void>({
-      query: () => "/location",
+      query: () => "/delivery-area",
       providesTags: ["Location"],
     }),
 
     updateLocation: builder.mutation<{ success: boolean; message: string }, { id: string; data: Partial<Location> }>({
       query: ({ id, data }) => ({
-        url: `/location/${id}`,
+        url: `/delivery-area/${id}`,
         method: "PUT",
         body: data,
       }),
@@ -18,7 +18,7 @@ export const locationApi = baseApi.injectEndpoints({
 
     deleteLocation: builder.mutation<{ success: boolean; message: string }, { id: string }>({
       query: ({ id }) => ({
-        url: `/location/${id}`,
+        url: `/delivery-area/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Location"],

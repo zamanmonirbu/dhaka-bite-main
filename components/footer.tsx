@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Facebook, Instagram, Music } from "lucide-react"
 import Image from "next/image"
+import { SiTiktok, SiWhatsapp } from "react-icons/si"
 
 export default function Footer() {
   return (
@@ -26,29 +27,37 @@ export default function Footer() {
             </p>
             <div className="flex gap-4 justify-center md:justify-start">
               <Link
-                href="https://facebook.com"
-                className="bg-white/10 p-2 rounded-md hover:bg-white/20 transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Facebook size={20} />
-              </Link>
-              <Link
-                href="https://instagram.com"
-                className="bg-white/10 p-2 rounded-md hover:bg-white/20 transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Instagram size={20} />
-              </Link>
-              <Link
-                href="https://tiktok.com"
-                className="bg-white/10 p-2 rounded-md hover:bg-white/20 transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Music size={20} />
-              </Link>
+              href="https://www.facebook.com/share/1BBhiDmhEj/"
+              className="bg-primary p-2 rounded-md hover:bg-green-600 shadow-md transition"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Facebook size={20} className="text-white" />
+            </Link>
+            <Link
+              href="https://www.instagram.com/dhakabite?igsh=MXNpNzN3ejJwZzExdw=="
+              className="bg-primary p-2 rounded-md hover:bg-green-600 shadow-md transition"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Instagram size={20} className="text-white" />
+            </Link>
+            <Link
+              href="https://www.tiktok.com/@dhaka_bite?_t=ZS-8wsWsjYPj8i&_r=1"
+              className="bg-primary p-2 rounded-md hover:bg-green-600 shadow-md transition"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <SiTiktok size={20} className="text-white" />
+            </Link>
+            <Link
+              href="https://wa.me/01621362024"
+              className="bg-primary p-2 rounded-md hover:bg-green-600 shadow-md transition"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <SiWhatsapp size={20} className="text-white" />
+            </Link>
             </div>
           </div>
 
@@ -91,10 +100,15 @@ export default function Footer() {
               <h3 className="text-lg md:text-xl font-semibold mb-4">Address</h3>
               <ul className="space-y-2">
                 <li className="text-sm">
+                  <span className="font-medium">Kitchen Location:</span>
+                  <br />
+                  Mirbagh, Rampura, Dhaka
+                </li>
+                <li className="text-sm">
                   <span className="font-medium">Email:</span> dhakabite@gmail.com
                 </li>
                 <li className="text-sm">
-                  <span className="font-medium">Mobile:</span> 01999-999990
+                  <span className="font-medium">Mobile:</span> 01621362024
                 </li>
                 <li className="text-sm">
                   <span className="font-medium">Trade License:</span>

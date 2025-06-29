@@ -18,13 +18,10 @@ export default function ContactPage() {
       <HeroSection
         title="Contact Us"
         description="Get in touch with Dhaka Bite for any questions, feedback, or support."
-        backgroundImage="/contact-hero-bg.jpg"
+        details="We’re here to help! Whether you have questions about our services, need support, or just want to share your feedback, feel free to reach out to us. Our team is ready to assist you."
       />
       <ContactForm />
-      {/* <OtherServices />
-      <Testimonials />
-      <DeliveryArea />
-      <Footer /> */}
+      
     </main>
   )
 }

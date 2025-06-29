@@ -17,7 +17,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     <>
       {!isDashboard && <NotificationBar />}
       {!isDashboard && <Navbar />}
-      <main className=" px-6 sm:px-10 md:px-12 lg:px-[8.5rem] bg-gradient-to-br from-green-50">{children}</main>
+      <main className=" px-6 sm:px-10 md:px-12 lg:px-[8.5rem] py-4 bg-gradient-to-br from-green-50 max-w-8xl">{children}</main>
       <Toaster />
       {!isDashboard && <OtherServices />}
       {!isDashboard && <Testimonials />}

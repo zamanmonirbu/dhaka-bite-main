@@ -18,14 +18,11 @@ export default function TermsPage() {
       <HeroSection
         title="Terms & Conditions"
         description="Review the terms and conditions before using DhakaBite’s food delivery service."
-        backgroundImage="/blogs-hero-bg.jpg"
+        details=""
       />
 
       <TermsContent />
-      {/* <OtherServices />
-      <Testimonials />
-      <DeliveryArea />
-      <Footer /> */}
+     
     </main>
   )
 }

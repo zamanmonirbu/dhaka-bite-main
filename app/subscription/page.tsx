@@ -13,7 +13,7 @@ export default function SubscriptionPage() {
       <HeroSection
         title="Subscription Plans"
         description="Choose from our range of subscription plans for regular meal delivery."
-        backgroundImage="/subscription-hero-bg.jpg"
+        details=""
       />
       <SubscriptionPlans />
     </main>

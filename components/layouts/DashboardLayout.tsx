@@ -75,9 +75,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Link key={item.href} href={item.href}>
                   <Button
                     variant={isActive ? "default" : "ghost"}
-                    className={`w-full justify-start mb-2 ${
-                      isActive ? "bg-green-600 text-white" : "text-gray-700 hover:bg-gray-100"
-                    }`}
+                    className={`w-full justify-start mb-2 ${isActive ? "bg-green-600 text-white" : "text-gray-700 hover:bg-gray-100"
+                      }`}
                   >
                     <Icon className="mr-3 h-4 w-4" />
                     {item.label}
@@ -105,43 +104,43 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <p className="text-gray-500">{pathname.split("/")[2]?.toUpperCase() || "HOME"}</p>
             </div>
 
-           <div className="flex items-center gap-6">
-  {/* Search bar */}
-  <div className="relative">
-    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-    <input
-      type="text"
-      placeholder="Search"
-      className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 w-80"
-    />
-  </div>
+            <div className="flex items-center gap-6">
+              {/* Search bar */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <input
+                  type="text"
+                  placeholder="Search"
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 w-80"
+                />
+              </div>
 
-  {/* User Profile */}
-  <div className="flex items-center gap-3">
-    {user?.profileImage ? (
-      <div className="w-10 h-10 rounded-full overflow-hidden">
-        <img src={user.profileImage} alt="User" className="w-full h-full object-cover" />
-      </div>
-    ) : (
-      <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">
-        {user?.name?.charAt(0).toUpperCase() || "U"}
-      </div>
-    )}
-    <div>
-      <p className="font-medium text-gray-900">{user?.name || "User"}</p>
-      <p className="text-sm text-gray-500">{user?.role || "Customer"}</p>
-    </div>
-  </div>
+              {/* User Profile */}
+              <div className="flex items-center gap-3">
+                {user?.profileImage ? (
+                  <div className="w-10 h-10 rounded-full overflow-hidden">
+                    <img src={user.profileImage} alt="User" className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">
+                    {user?.name?.charAt(0).toUpperCase() || "U"}
+                  </div>
+                )}
+                <div>
+                  <p className="font-medium text-gray-900">{user?.name || "User"}</p>
+                  <p className="text-sm text-gray-500">{user?.role || "Customer"}</p>
+                </div>
+              </div>
 
-  {/* Wallet */}
-  <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg shadow-sm">
-    <span className="text-gray-700 font-medium">৳{user?.balance || 0}</span>
-    <button className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 text-sm flex items-center gap-1">
-      <Plus size={14} />
-      <span>Add</span>
-    </button>
-  </div>
-</div>
+              {/* Wallet */}
+              <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg shadow-sm">
+                <span className="text-gray-700 font-medium">৳{user?.balance || 0}</span>
+                <button className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 text-sm flex items-center gap-1">
+                  <Plus size={14} />
+                  <span>Add</span>
+                </button>
+              </div>
+            </div>
 
           </header>
 

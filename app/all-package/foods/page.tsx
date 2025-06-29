@@ -20,9 +20,6 @@ export default function AllPackageFoodsPage() {
       />
       <MenuStory />
       <AllPackageFoods />
-      {/* <OtherServices />
-      <Testimonials />
-      <DeliveryArea /> */}
     </main>
   )
 }

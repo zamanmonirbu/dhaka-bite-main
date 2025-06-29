@@ -51,7 +51,7 @@ export default function OffersGrid() {
   };
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-16">
       <div className="container-custom">
         {/* Header */}
         <div className="text-center mb-12">

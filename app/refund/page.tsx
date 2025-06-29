@@ -8,18 +8,15 @@ import { Refund } from "@/components/refund-grid"
 
 export default function RefundPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <HeroSection
         title="Refund Policy"
         description="Learn about our refund policy and how to request a refund."
-        backgroundImage="/refund-hero-bg.jpg"
+        details="At Dhaka Bite, we strive to ensure customer satisfaction. If you are not satisfied with your order, please read our refund policy to understand how to request a refund."
       />
      
       <Refund />
-      {/* <OtherServices />
-      <Testimonials />
-      <DeliveryArea />
-      <Footer /> */}
+
     </div>
   )
 }

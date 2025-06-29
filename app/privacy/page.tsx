@@ -6,6 +6,7 @@ import type { Metadata } from "next"
 import DeliveryArea from "@/components/delivery-area"
 import Testimonials from "@/components/testimonials"
 import OtherServices from "@/components/other-services"
+import HeroSection from "@/components/HeroSection"
 
 export const metadata: Metadata = {
   title: "Privacy Policy | Dhaka Bite",
@@ -15,19 +16,16 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <main>
-      {/* <NotificationBar />
-      <Navbar /> */}
-      <div className="py-12 bg-white">
-        <div className="container-custom">
-          <PrivacyContent />
-        </div>
-      </div>
 
-      {/* <OtherServices />
-            <Testimonials />
-            <DeliveryArea />
-            <Footer /> */}
-      {/* <Footer /> */}
+       <div className="min-h-screen ">
+            <HeroSection
+              title="Privacy Policy"
+              description="Your privacy is important to us. Learn how we handle your personal information."
+            details=""
+            />
+            <PrivacyContent />
+          </div>
+   
     </main>
   )
 }

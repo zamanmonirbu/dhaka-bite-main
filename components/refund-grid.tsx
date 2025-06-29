@@ -1,20 +1,27 @@
-import { cn } from "@/lib/utils"
 
 export function Refund() {
   return (
-    <div className={cn("bg-background rounded-lg p-6")}>
-      <h2 className="text-xl font-semibold mb-3">Refund Policy</h2>
-      <p className="mb-3">
-        If you are unhappy with your order, please contact us within 12 of
-        delivery to initiate a refund.
-      </p>
-      <p className="mb-3">
-        Refunds are subject to the policies of the restaurant and our platform.
+    <section className="py-16">
+      <section className="container-custom">
+        {/* Header */}
+        <div className="text-center mb-12">
+    <div className="mx-auto p-6 text-justify">
+      <p>
+        If a customer provides a wrong address, we are not responsible and no refund will be issued.
       </p>
       <p>
-        In the case of incorrect or unsatisfactory food, please contact customer
-        support within [X hours].
+        If a correct order is placed but no food is delivered, a full refund will be processed.
+      </p>
+      <p>
+        For lunch orders, refund requests must be made by midnight of the same day.
+      </p>
+      <p>
+        For dinner orders, refund requests must be made by 12:00 PM the next day.
       </p>
     </div>
+      </div>
+      </section>
+    </section>
   )
 }
+

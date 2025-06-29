@@ -7,17 +7,14 @@ import HeroSection from "@/components/HeroSection"
 
 export default function OffersPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <HeroSection
         title="Offers"
         description="Discover amazing discounts on your favorite meals. Limited time offers that bring you the best value for delicious, home-style cooking."
-        backgroundImage="/offers-hero-bg.jpg"
+      details="Explore our latest offers and enjoy great savings on your next meal. Don't miss out on these limited-time deals that make dining with us even more delightful."
       />
       <OffersGrid />
-      {/* <OtherServices />
-      <Testimonials />
-      <DeliveryArea />
-      <Footer /> */}
+      
     </div>
   )
 }

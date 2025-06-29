@@ -1,24 +1,20 @@
 "use client"
 
-import type React from "react"
 import { useState } from "react"
 import { Receipt, Truck, ChefHat } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import AddBalanceModal from "@/components/AddBalanceModal"
+import { useAuth } from "@/hooks/useAuth"
 
-interface DeliveryOption {
-  id: string
-  name: string
-  price: number
-  icon: React.ReactNode
-  iconBgColor: string
-  buttonBgColor: string
-}
 
 export default function DeliveryChargeOptions() {
   const { toast } = useToast()
-  const [selectedOption, setSelectedOption] = useState<string | null>(null)
+  const { user } = useAuth() // get logged in user
 
-  const options: DeliveryOption[] = [
+  const [modalOpen, setModalOpen] = useState(false)
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(null)
+
+  const options = [
     {
       id: "basic",
       name: "Basic Package",
@@ -45,27 +41,20 @@ export default function DeliveryChargeOptions() {
     },
   ]
 
-  const handleSelection = (optionId: string) => {
-    setSelectedOption(optionId)
-    const option = options.find((o) => o.id === optionId)
-
-    toast({
-      title: `${option?.name} Selected`,
-      description: "You'll be redirected to complete your delivery charge payment.",
-    })
-
-    console.log(`Selected delivery option: ${optionId}`)
+  const handleSubscribe = (price: number) => {
+    setSelectedAmount(price)
+    setModalOpen(true)
   }
 
   return (
-    <section className="py-16 bg-[#f2e2b7]">
+    <section className="py-16 ">
       <div className="container-custom">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">Delivery Charge Options</h2>
           <p className="max-w-2xl mx-auto text-gray-700">
             Monthly delivery charges for your meal plan.
             <br />
-            Payment via Bkash, Nagad & Credit Card.
+            Payment via bKash, Nagad & Credit Card.
           </p>
         </div>
 
@@ -73,9 +62,7 @@ export default function DeliveryChargeOptions() {
           {options.map((option) => (
             <div key={option.id} className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="p-6 text-center">
-                <div
-                  className={`w-20 h-20 ${option.iconBgColor} rounded-full mx-auto flex items-center justify-center mb-4`}
-                >
+                <div className={`w-20 h-20 ${option.iconBgColor} rounded-full mx-auto flex items-center justify-center mb-4`}>
                   {option.icon}
                 </div>
                 <h3 className="text-xl font-bold text-primary mb-2">{option.name}</h3>
@@ -90,7 +77,7 @@ export default function DeliveryChargeOptions() {
 
               <div className="p-6 pt-0">
                 <button
-                  onClick={() => handleSelection(option.id)}
+                  onClick={() => handleSubscribe(option.price)}
                   className={`w-full py-2 px-4 rounded-md font-medium transition-colors ${option.buttonBgColor}`}
                 >
                   Pay Delivery Charge
@@ -100,6 +87,20 @@ export default function DeliveryChargeOptions() {
           ))}
         </div>
       </div>
+
+      {selectedAmount !== null && (
+        <AddBalanceModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          user={user}
+          onSuccess={() => {
+            toast({
+              title: "Payment Successful",
+              description: `Your payment of ৳${selectedAmount} has been recorded.`,
+            })
+          }}
+        />
+      )}
     </section>
   )
 }

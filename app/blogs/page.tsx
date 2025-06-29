@@ -18,13 +18,10 @@ export default function BlogsPage() {
       <HeroSection
         title="Blogs"
         description="Read our latest blogs about food, nutrition, and healthy eating habits."
-        backgroundImage="/blogs-hero-bg.jpg"
+        details="Explore our blogs for insights on food, nutrition, and healthy eating habits. Stay informed with Dhaka Bite."
       />
       <BlogPosts />
-      {/* <OtherServices />
-      <Testimonials />
-      <DeliveryArea />
-      <Footer /> */}
+     
     </main>
   )
 }

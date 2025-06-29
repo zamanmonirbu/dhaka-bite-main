@@ -17,7 +17,15 @@ export const testimonialsApi = baseApi.injectEndpoints({
       query: () => "/review-rating/latest-accepted",
       transformResponse: (response: any) => response.data,
     }),
+    createTestimonial: builder.mutation<void, Partial<Testimonial>>({
+      query: (testimonial) => ({
+        url: "/review-rating",
+        method: "POST",
+        body: testimonial,
+      }),
+    }),
   }),
 })
 
-export const { useGetTestimonialsQuery } = testimonialsApi
+export const { useGetTestimonialsQuery, useCreateTestimonialMutation } = testimonialsApi
+

@@ -47,7 +47,7 @@ export default function BlogPosts() {
   }, [page]);
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16">
       <div className="container-custom">
         {loading ? (
           <p>Loading...</p>

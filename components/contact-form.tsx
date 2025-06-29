@@ -58,7 +58,7 @@ export default function ContactForm() {
   }
 
   return (
-    <section className="py-16 bg-[#f2e2b7]">
+    <section className="py-16 ">
       <div className="container-custom">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Contact Information */}

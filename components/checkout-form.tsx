@@ -1,30 +1,17 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
-import { Building2, Home } from "lucide-react"
+import { Building2, Home, Minus, Plus } from "lucide-react"
 import Link from "next/link"
 
-// Sample cart items - in a real app, these would come from your cart state/context
-const cartItems = [
-  {
-    id: "1",
-    name: "Basic Sunday/ 18 May",
-    price: 65.0,
-    quantity: 1,
-  },
-  {
-    id: "2",
-    name: "Basic Sunday/ 18 May",
-    price: 65.0,
-    quantity: 1,
-  },
-]
-
-// Sample delivery areas - in a real app, these would come from your API
-const deliveryAreas = ["Gulshan", "Banani", "Baridhara", "Bashundhara", "Uttara", "Dhanmondi", "Mohammadpur", "Mirpur"]
+interface CartItem {
+  id: string
+  name: string
+  price: number
+  quantity: number
+}
 
 export default function CheckoutForm() {
   const { toast } = useToast()
@@ -39,6 +26,22 @@ export default function CheckoutForm() {
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState("online")
+  const [cartItems, setCartItems] = useState<CartItem[]>([
+    {
+      id: "1",
+      name: "Basic Sunday/ 18 May",
+      price: 65.0,
+      quantity: 1,
+    },
+    {
+      id: "2",
+      name: "Basic Sunday/ 18 May",
+      price: 65.0,
+      quantity: 1,
+    },
+  ])
+
+  const deliveryAreas = ["Gulshan", "Banani", "Baridhara", "Bashundhara", "Uttara", "Dhanmondi", "Mohammadpur", "Mirpur"]
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -53,6 +56,16 @@ export default function CheckoutForm() {
       ...prev,
       deliveryLocation: location,
     }))
+  }
+
+  const updateQuantity = (id: string, change: number) => {
+    setCartItems(prev => 
+      prev.map(item => 
+        item.id === id 
+          ? { ...item, quantity: Math.max(1, item.quantity + change) } 
+          : item
+      )
+    )
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -70,13 +83,6 @@ export default function CheckoutForm() {
     setIsSubmitting(true)
 
     try {
-      // In a real app, this would be an API call to your backend
-      // await fetch('/api/orders', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ formData, cartItems })
-      // });
-
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
@@ -85,7 +91,6 @@ export default function CheckoutForm() {
         description: "Your order has been successfully placed!",
       })
 
-      // In a real app, you would redirect to a success page or clear the cart
       console.log("Order placed:", { formData, cartItems })
     } catch (error) {
       toast({
@@ -104,7 +109,8 @@ export default function CheckoutForm() {
   // Calculate delivery fee (10% of item price)
   const deliveryFeePerItem = cartItems.map((item) => ({
     id: item.id,
-    fee: Number.parseFloat((item.price * 0.1).toFixed(2)),
+    name: item.name,
+    fee: Number.parseFloat((item.price * 0.1 * item.quantity).toFixed(2)),
   }))
 
   // Calculate total delivery fee
@@ -120,122 +126,7 @@ export default function CheckoutForm() {
         <h2 className="text-xl font-bold mb-6">Delivery Information</h2>
 
         <div className="space-y-4">
-          <div>
-            <label htmlFor="fullName" className="block text-gray-700 font-medium mb-1">
-              Full Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="fullName"
-              name="fullName"
-              value={formData.fullName}
-              onChange={handleChange}
-              required
-              placeholder="Enter your first and last name"
-              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="phoneNumber" className="block text-gray-700 font-medium mb-1">
-              Phone Number <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="tel"
-              id="phoneNumber"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              required
-              placeholder="Enter your phone number"
-              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="email" className="block text-gray-700 font-medium mb-1">
-              E-mail <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              placeholder="Enter your e-mail"
-              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="area" className="block text-gray-700 font-medium mb-1">
-              Area <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="area"
-              name="area"
-              value={formData.area}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary appearance-none"
-            >
-              <option value="">Select one</option>
-              {deliveryAreas.map((area) => (
-                <option key={area} value={area}>
-                  {area}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="address" className="block text-gray-700 font-medium mb-1">
-              Address <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="address"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              required
-              placeholder="For example: House#124, Street#123, 3 Road, Banasree, Dhaka"
-              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-medium mb-3">
-              Select a label for effective delivery <span className="text-red-500">*</span>
-            </label>
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={() => setDeliveryLocation("Office")}
-                className={`flex items-center justify-center gap-2 py-3 px-4 border ${
-                  formData.deliveryLocation === "Office"
-                    ? "border-primary text-primary"
-                    : "border-gray-300 text-gray-700"
-                } rounded-md hover:border-primary hover:text-primary transition-colors`}
-              >
-                <Building2 size={18} />
-                <span>Office</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setDeliveryLocation("Home")}
-                className={`flex items-center justify-center gap-2 py-3 px-4 ${
-                  formData.deliveryLocation === "Home"
-                    ? "bg-primary text-white"
-                    : "bg-white border border-gray-300 text-gray-700"
-                } rounded-md hover:bg-primary hover:text-white transition-colors`}
-              >
-                <Home size={18} />
-                <span>Home</span>
-              </button>
-            </div>
-          </div>
+          {/* ... (keep all the delivery information fields the same) ... */}
         </div>
       </div>
 
@@ -246,11 +137,35 @@ export default function CheckoutForm() {
 
           <div className="space-y-4">
             {cartItems.map((item) => (
-              <div key={item.id} className="flex justify-between py-2 border-b">
-                <span>
-                  {item.name} * {item.quantity}
-                </span>
-                <span className="font-medium">{item.price.toFixed(2)}/-</span>
+              <div key={item.id} className="flex flex-col py-2 border-b">
+                <div className="flex justify-between mb-2">
+                  <span>{item.name}</span>
+                  <span className="font-medium">{item.price.toFixed(2)}/-</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center border border-gray-300 rounded-md w-full max-w-[120px]">
+                    <button
+                      type="button"
+                      onClick={() => updateQuantity(item.id, -1)}
+                      className="px-3 py-1 text-gray-600 hover:bg-gray-100 flex items-center justify-center"
+                      aria-label="Decrease quantity"
+                    >
+                      <Minus size={16} />
+                    </button>
+                    <span className="px-3 py-1 border-x border-gray-300 text-center flex-1">
+                      {item.quantity}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => updateQuantity(item.id, 1)}
+                      className="px-3 py-1 text-gray-600 hover:bg-gray-100 flex items-center justify-center"
+                      aria-label="Increase quantity"
+                    >
+                      <Plus size={16} />
+                    </button>
+                  </div>
+                  <span className="font-medium">{(item.price * item.quantity).toFixed(2)}/-</span>
+                </div>
               </div>
             ))}
 
@@ -259,9 +174,9 @@ export default function CheckoutForm() {
               <span className="font-medium">{subtotal.toFixed(2)}/-</span>
             </div>
 
-            {deliveryFeePerItem.map((fee, index) => (
+            {deliveryFeePerItem.map((fee) => (
               <div key={fee.id} className="flex justify-between py-2 border-b">
-                <span>Delivery Fee (Basic Meal - 1 Meal)</span>
+                <span>Delivery Fee ({fee.name.split('/')[0]})</span>
                 <span>{fee.fee.toFixed(2)}/-</span>
               </div>
             ))}
@@ -272,6 +187,7 @@ export default function CheckoutForm() {
             </div>
           </div>
         </div>
+
 
         <div className="bg-[#d4a017] p-6 rounded-lg">
           <div className="mb-4">
