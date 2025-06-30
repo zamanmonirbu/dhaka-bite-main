@@ -17,6 +17,8 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
   const { toast } = useToast()
   const { items, totalPrice, removeFromCart } = useCart()
 
+
+  
   // Close modal when Escape key is pressed
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {

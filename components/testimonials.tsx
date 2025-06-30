@@ -23,13 +23,13 @@ export default function Testimonials() {
 
 const testimonials: Testimonial[] = data || []
 
-console.log("testimonials", testimonials)
+// console.log("testimonials", testimonials)
 
 
   const [createTestimonial] = useCreateTestimonialMutation()
   const { user, isAuthenticated } = useAuth()
 
-  console.log(user, isAuthenticated)
+  // console.log(user, isAuthenticated)
 
   const { toast } = useToast()
 

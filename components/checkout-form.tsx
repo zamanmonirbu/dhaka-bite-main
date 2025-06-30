@@ -1,20 +1,32 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { Minus, Plus, Trash } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { Building2, Home, Minus, Plus } from "lucide-react"
-import Link from "next/link"
+import { useAuth } from "@/hooks/useAuth"
+import { useGetDeliveryAreasQuery } from "@/store/api/deliveryApi"
+import dynamic from "next/dynamic"
+import { useCart } from "@/hooks/useCart"
+import { useCreateOrderMutation } from "@/rest/store/api/orderApi"
 
-interface CartItem {
-  id: string
-  name: string
-  price: number
-  quantity: number
+interface DeliveryArea {
+  _id: string
+  areaName: string
+  latitude: number
+  longitude: number
 }
 
 export default function CheckoutForm() {
+  const { user } = useAuth()
   const { toast } = useToast()
+  const Map = dynamic(() => import("./LocationPickerMap"), { ssr: false })
+  const { items, removeFromCart, updateQuantity, clearCart } = useCart()
+  const { data } = useGetDeliveryAreasQuery()
+  const [createOrder, { isLoading, isError,  }] = useCreateOrderMutation()
+
+
+  const deliveryAreas: DeliveryArea[] = data?.data || []
+
   const [formData, setFormData] = useState({
     fullName: "",
     phoneNumber: "",
@@ -23,221 +35,245 @@ export default function CheckoutForm() {
     address: "",
     deliveryLocation: "",
   })
-  const [termsAccepted, setTermsAccepted] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState("online")
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: "1",
-      name: "Basic Sunday/ 18 May",
-      price: 65.0,
-      quantity: 1,
-    },
-    {
-      id: "2",
-      name: "Basic Sunday/ 18 May",
-      price: 65.0,
-      quantity: 1,
-    },
-  ])
 
-  const deliveryAreas = ["Gulshan", "Banani", "Baridhara", "Bashundhara", "Uttara", "Dhanmondi", "Mohammadpur", "Mirpur"]
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [selectedArea, setSelectedArea] = useState<DeliveryArea | null>(null)
+  const [selectedPosition, setSelectedPosition] = useState<{ lat: number; lng: number } | null>(null)
+  const [showMap, setShowMap] = useState(false)
+
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        fullName: user.name || "",
+        phoneNumber: user.phone || "",
+        email: user.email || "",
+        area: user.area?.areaName || "",
+        address: user.address || "",
+        deliveryLocation: user.deliveryLocation || ""
+      }))
+
+      if (user.area) {
+        const userArea: DeliveryArea = {
+          _id: user.area._id,
+          areaName: user.area.areaName,
+          latitude: user.area.latitude,
+          longitude: user.area.longitude
+        }
+        setSelectedArea(userArea)
+        setSelectedPosition({ lat: user.area.latitude, lng: user.area.longitude })
+        setShowMap(true)
+      }
+    }
+  }, [user])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+    setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const setDeliveryLocation = (location: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      deliveryLocation: location,
-    }))
-  }
+  const handleAreaChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const areaName = e.target.value
+    const area = deliveryAreas.find(a => a.areaName === areaName) || null
+    setSelectedArea(area)
 
-  const updateQuantity = (id: string, change: number) => {
-    setCartItems(prev => 
-      prev.map(item => 
-        item.id === id 
-          ? { ...item, quantity: Math.max(1, item.quantity + change) } 
-          : item
-      )
-    )
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!termsAccepted) {
-      toast({
-        title: "Terms and Conditions",
-        description: "Please accept the terms and conditions to proceed.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    setIsSubmitting(true)
-
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      toast({
-        title: "Order Placed",
-        description: "Your order has been successfully placed!",
-      })
-
-      console.log("Order placed:", { formData, cartItems })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "There was a problem placing your order. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsSubmitting(false)
+    if (area) {
+      setSelectedPosition({ lat: area.latitude, lng: area.longitude })
+      setFormData(prev => ({
+        ...prev,
+        area: areaName,
+        deliveryLocation: `${area.latitude},${area.longitude}`
+      }))
+      setShowMap(true)
+    } else {
+      setSelectedPosition(null)
+      setFormData(prev => ({
+        ...prev,
+        area: "",
+        deliveryLocation: ""
+      }))
+      setShowMap(false)
     }
   }
 
-  // Calculate subtotal
-  const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
+  const handleMapClick = (lat: number, lng: number) => {
+    setSelectedPosition({ lat, lng })
+    setFormData(prev => ({
+      ...prev,
+      deliveryLocation: `${lat},${lng}`
+    }))
+  }
 
-  // Calculate delivery fee (10% of item price)
-  const deliveryFeePerItem = cartItems.map((item) => ({
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const deliveryFees = items.map(item => ({
     id: item.id,
     name: item.name,
-    fee: Number.parseFloat((item.price * 0.1 * item.quantity).toFixed(2)),
+    fee: parseFloat((item.price * 0.1 * item.quantity).toFixed(2)),
   }))
-
-  // Calculate total delivery fee
-  const totalDeliveryFee = deliveryFeePerItem.reduce((total, item) => total + item.fee, 0)
-
-  // Calculate total
+  const totalDeliveryFee = deliveryFees.reduce((sum, f) => sum + f.fee, 0)
   const total = subtotal + totalDeliveryFee
 
-  return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      {/* Delivery Information */}
-      <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-        <h2 className="text-xl font-bold mb-6">Delivery Information</h2>
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
+  const { fullName, phoneNumber, email, area, address, deliveryLocation } = formData;
 
-        <div className="space-y-4">
-          {/* ... (keep all the delivery information fields the same) ... */}
+  if (!fullName || !phoneNumber || !email || !area || !address || !deliveryLocation) {
+    toast({ title: "Missing Info", description: "Please fill in all fields.", variant: "destructive" })
+    return
+  }
+
+  if (user?.balance < total) {
+    toast({ title: "Insufficient Balance", description: "Recharge your balance to place the order.", variant: "destructive" })
+    return
+  }
+
+  setIsSubmitting(true)
+  try {
+    await createOrder({
+      items,
+      deliveryAddress: {
+        street: address,
+        area,
+        city: "Dhaka",
+        zipCode: "1219",
+        phone: phoneNumber,
+      },
+      paymentMethod: "wallet",
+      deliveryDate: new Date().toISOString().split("T")[0],
+      deliveryTime: new Date().toISOString().split("T")[1].slice(0, 5),
+      notes: "",
+      totalAmount: total,
+    })
+
+    toast({ title: "Order Placed", description: "Your order was successfully placed!" })
+    clearCart()
+  } catch (err) {
+    console.error("Order error:", err)
+    toast({ title: "Error", description: "Could not place the order.", variant: "destructive" })
+  } finally {
+    setIsSubmitting(false)
+  }
+}
+
+
+  return (
+    <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-2 ">
+      <div className="bg-white p-6 rounded-lg border border-gray-200 shadow space-y-4">
+        <h2 className="text-xl font-bold mb-2">Delivery Information</h2>
+
+        <input name="fullName" value={formData.fullName} onChange={handleChange} placeholder="Full Name" className="w-full input-style" required />
+        <input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="Phone Number" className="w-full input-style" required />
+        <input name="email" value={formData.email} onChange={handleChange} placeholder="Email" className="w-full input-style" required />
+
+        <select name="area" value={formData.area} onChange={handleAreaChange} className="w-full input-style" required>
+          <option value="">Select Area</option>
+          {deliveryAreas.map(area => (
+            <option key={area._id} value={area.areaName}>{area.areaName}</option>
+          ))}
+        </select>
+
+        {showMap && selectedArea && (
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-gray-700">Select exact location from map:</p>
+            <div className="h-64 w-full border rounded-lg overflow-hidden">
+              <Map onMapClick={handleMapClick} selectedPosition={selectedPosition} />
+            </div>
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700">Detailed Address</label>
+          <textarea
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            placeholder="Street, house, floor, landmark etc."
+            rows={4}
+            className="w-full input-style"
+            required
+          />
         </div>
+
+       
       </div>
 
-      {/* Order Summary */}
       <div className="space-y-6">
-        <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-          <h2 className="text-xl font-bold mb-6">Product</h2>
-
-          <div className="space-y-4">
-            {cartItems.map((item) => (
-              <div key={item.id} className="flex flex-col py-2 border-b">
-                <div className="flex justify-between mb-2">
-                  <span>{item.name}</span>
-                  <span className="font-medium">{item.price.toFixed(2)}/-</span>
+        <div className="bg-white p-6 rounded-lg border border-gray-200 shadow">
+          <h2 className="text-xl font-bold mb-4">Your Order</h2>
+          {items.map(item => (
+            <div key={item.id} className="border-b py-3">
+              <div className="flex justify-between text-sm">
+                <span>{item.name}</span>
+                <span>{item.price.toFixed(2)}/-</span>
+              </div>
+              <div className="flex justify-between mt-2 items-center">
+                <div className="flex border rounded">
+                  <button type="button" onClick={() => updateQuantity(item.id, item.quantity - 1)} className="px-3 py-1 hover:bg-gray-100"><Minus size={14} /></button>
+                  <span className="px-4 py-1 border-x">{item.quantity}</span>
+                  <button type="button" onClick={() => updateQuantity(item.id, item.quantity + 1)} className="px-3 py-1 hover:bg-gray-100"><Plus size={14} /></button>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center border border-gray-300 rounded-md w-full max-w-[120px]">
-                    <button
-                      type="button"
-                      onClick={() => updateQuantity(item.id, -1)}
-                      className="px-3 py-1 text-gray-600 hover:bg-gray-100 flex items-center justify-center"
-                      aria-label="Decrease quantity"
-                    >
-                      <Minus size={16} />
-                    </button>
-                    <span className="px-3 py-1 border-x border-gray-300 text-center flex-1">
-                      {item.quantity}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => updateQuantity(item.id, 1)}
-                      className="px-3 py-1 text-gray-600 hover:bg-gray-100 flex items-center justify-center"
-                      aria-label="Increase quantity"
-                    >
-                      <Plus size={16} />
-                    </button>
-                  </div>
-                  <span className="font-medium">{(item.price * item.quantity).toFixed(2)}/-</span>
+                <div className="flex items-center gap-2">
+                  <span>{(item.price * item.quantity).toFixed(2)}/-</span>
+                  <button type="button" onClick={() => removeFromCart(item.id)} className="text-red-500 text-xs hover:underline"><Trash size={16} /></button>
                 </div>
               </div>
-            ))}
-
-            <div className="flex justify-between py-2 border-b">
-              <span className="font-medium">Subtotal</span>
-              <span className="font-medium">{subtotal.toFixed(2)}/-</span>
             </div>
+          ))}
 
-            {deliveryFeePerItem.map((fee) => (
-              <div key={fee.id} className="flex justify-between py-2 border-b">
-                <span>Delivery Fee ({fee.name.split('/')[0]})</span>
+          <div className="border-t mt-4 pt-2 text-sm">
+            <div className="flex justify-between"><span>Subtotal</span><span>{subtotal.toFixed(2)}/-</span></div>
+            {deliveryFees.map(fee => (
+              <div key={fee.id} className="flex justify-between text-gray-600">
+                <span>Delivery Fee ({fee.name.split("/")[0]})</span>
                 <span>{fee.fee.toFixed(2)}/-</span>
               </div>
             ))}
-
-            <div className="flex justify-between py-2 font-bold">
-              <span>Total</span>
-              <span>{total.toFixed(2)}/-</span>
-            </div>
+            <div className="flex justify-between font-bold mt-2 text-lg"><span>Total</span><span>{total.toFixed(2)}/-</span></div>
           </div>
+
+          {user?.balance !== undefined && (
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+              <div className="flex justify-between text-sm">
+                <span>Your Balance:</span>
+                <span className={user.balance >= total ? "text-green-600" : "text-red-600"}>
+                  ৳{user.balance.toLocaleString()}
+                </span>
+              </div>
+              {user.balance < total && (
+                <p className="text-xs text-red-600 mt-1">
+                  Insufficient balance. You need ৳{(total - user.balance).toFixed(2)} more.
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
-
-        <div className="bg-[#d4a017] p-6 rounded-lg">
-          <div className="mb-4">
-            <label className="flex items-center gap-2 text-white">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="online"
-                checked={paymentMethod === "online"}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="w-4 h-4 accent-primary"
-              />
-              <span className="font-medium">Online Payment</span>
-            </label>
-            <p className="text-white mt-2 ml-6">
-              Vikas, Cash, Rocket, Credit/Debit Card through Internet Banking or Mobile Banking. pay securely
-            </p>
-          </div>
-
-          <div className="mb-6">
-            <label className="flex items-start gap-2 text-white">
-              <input
-                type="checkbox"
-                checked={termsAccepted}
-                onChange={() => setTermsAccepted(!termsAccepted)}
-                className="w-4 h-4 mt-1 accent-primary"
-              />
-              <span>
-                I have read and agreed to the{" "}
-                <Link href="/terms" className="underline font-medium">
-                  Terms & conditions
-                </Link>
-                , and{" "}
-                <Link href="/privacy" className="underline font-medium">
-                  Privacy policy
-                </Link>{" "}
-                of DhakaBite.
-              </span>
-            </label>
-          </div>
-
+        <div className="p-6 rounded-lg text-white space-y-4">
           <button
             type="submit"
-            disabled={isSubmitting || !formData.deliveryLocation}
-            className="w-full bg-primary text-white py-4 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-70"
+            disabled={isSubmitting || (user?.balance && user.balance < total)}
+            className="w-full bg-primary py-3 rounded text-white font-bold hover:bg-opacity-90 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
           >
             {isSubmitting ? "Processing..." : "Place Order"}
           </button>
         </div>
       </div>
+
+      <style jsx>{`
+        .input-style {
+          padding: 0.75rem;
+          border-radius: 0.375rem;
+          border: 1px solid #ccc;
+          outline: none;
+          font-size: 0.95rem;
+          transition: border-color 0.2s;
+        }
+        .input-style:focus {
+          border-color: #d4a017;
+          box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.1);
+        }
+      `}</style>
     </form>
   )
 }
+

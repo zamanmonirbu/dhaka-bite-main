@@ -2,20 +2,13 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Check, Heart, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
+import { Check, Loader2, ChevronLeft, ChevronRight, Plus, Minus, ShoppingCart } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import { useCart } from "@/hooks/useCart"
 import { useToast } from "@/hooks/use-toast"
 import { useGetMealsQuery } from "@/store/api/mealApi"
 import { useGetPackagesQuery } from "@/store/api/packageApi"
 import type { CartItem } from "@/store/slices/cartSlice"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 
 interface MenuItem {
   id: string
@@ -53,7 +46,7 @@ export default function OurServices() {
   const { addToCart } = useCart()
   const { toast } = useToast()
   const today = new Date().toISOString().split("T")[0]
-  const [favorites, setFavorites] = useState<Record<string, boolean>>({})
+  const [quantities, setQuantities] = useState<Record<string, number>>({})
 
   const { data: mealsData, isLoading: mealsLoading, error: mealsError } = useGetMealsQuery({ today })
   const { data: packagesData, isLoading: packagesLoading, error: packagesError } = useGetPackagesQuery()
@@ -74,37 +67,50 @@ export default function OurServices() {
     return menuItems
   }
 
-  const handleAddToCart = async (item: MenuItem) => {
-    const cartItem: CartItem = {
-      id: `${item.id}-${Date.now()}`,
-      name: `${item.packageType} ${item.mealType.charAt(0).toUpperCase() + item.mealType.slice(1)} - ${item.day}`,
-      price: item.price,
-      quantity: 1,
-      image: item.image,
-      mealType: item.mealType,
-      menuType: item.packageType,
-      ingredients: item.ingredients.map(ing => ({
-        name: ing.name,
-        quantity: `${ing.quantity} ${ing.unit}`,
-      }))
-    }
-    try {
-      await addToCart(cartItem)
-      toast({ title: "Added to cart", description: `${item.packageType} ${item.mealType} (${item.day}) added to your cart` })
-    } catch (error) {
-      toast({ title: "Error", description: "Could not add item to cart. Please try again.", variant: "destructive" })
-    }
+  const handleQuantityChange = (itemId: string, change: number) => {
+    setQuantities(prev => {
+      const currentQuantity = prev[itemId] || 0
+      const newQuantity = Math.max(0, currentQuantity + change)
+      return { ...prev, [itemId]: newQuantity }
+    })
   }
 
-  const handleToggleFavorite = (itemId: string) => {
-    setFavorites(prev => ({ ...prev, [itemId]: !prev[itemId] }))
-    const menuItems = getMenuItemsByPackage()
-    const item = menuItems.find(i => i.id === itemId)
-    if (item) handleAddToCart(item)
+  const handleAddToCart = async (item: MenuItem) => {
+    const quantity = quantities[item.id] || 1
+
+    for (let i = 0; i < quantity; i++) {
+      const cartItem: CartItem = {
+        id: `${item.id}-${Date.now()}-${i}`,
+        name: `${item.packageType} ${item.mealType.charAt(0).toUpperCase() + item.mealType.slice(1)} - ${item.day}`,
+        price: item.price,
+        quantity: 1,
+        image: item.image,
+        mealType: item.mealType,
+        menuType: item.packageType,
+        ingredients: item.ingredients.map(ing => ({
+          name: ing.name,
+          quantity: `${ing.quantity} ${ing.unit}`,
+        }))
+      }
+
+      try {
+        await addToCart(cartItem)
+      } catch (error) {
+        toast({ title: "Error", description: "Could not add item to cart. Please try again.", variant: "destructive" })
+        return
+      }
+    }
+
+    toast({ 
+      title: "Added to cart", 
+      description: `${quantity} x ${item.packageType} ${item.mealType} (${item.day}) added to your cart` 
+    })
+
+    setQuantities(prev => ({ ...prev, [item.id]: 0 }))
   }
 
   const menuItems = getMenuItemsByPackage()
-  const packageTypes = packagesData?.data?.map((pkg: any) => pkg.packageName) || []
+  const packageList = packagesData?.data || []
 
   if (isLoading) {
     return (
@@ -134,15 +140,17 @@ export default function OurServices() {
   }
 
   return (
-    <section className="py-4  mt-12">
+    <section className="py-4 rounded-2xl shadow-lg border border-gray-100 mt-12">
       <div className="w-full">
-        {packageTypes.map((packageType: string) => (
+        {packageList.map((pkg: any) => (
           <PackageSection
-            key={packageType}
-            packageType={packageType}
-            items={menuItems.filter(item => item.packageType === packageType)}
-            favorites={favorites}
-            handleToggleFavorite={handleToggleFavorite}
+            key={pkg._id}
+            packageType={pkg.packageName}
+            packageId={pkg._id}
+            items={menuItems.filter(item => item.packageType === pkg.packageName)}
+            quantities={quantities}
+            onQuantityChange={handleQuantityChange}
+            onAddToCart={handleAddToCart}
           />
         ))}
       </div>
@@ -152,14 +160,18 @@ export default function OurServices() {
 
 function PackageSection({ 
   packageType, 
+  packageId,
   items, 
-  favorites, 
-  handleToggleFavorite 
+  quantities,
+  onQuantityChange,
+  onAddToCart
 }: { 
   packageType: string
+  packageId: string
   items: MenuItem[]
-  favorites: Record<string, boolean>
-  handleToggleFavorite: (id: string) => void 
+  quantities: Record<string, number>
+  onQuantityChange: (itemId: string, change: number) => void
+  onAddToCart: (item: MenuItem) => void
 }) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
@@ -179,18 +191,14 @@ function PackageSection({
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
-      // Calculate scroll amount based on screen size
       const isMobile = window.innerWidth < 640
-      const cardWidth = isMobile ? 180 : 220 // Adjusted for mobile responsiveness
-      const gap = 12 // Gap between cards
+      const cardWidth = isMobile ? 180 : 220
+      const gap = 12
       const scrollAmount = cardWidth + gap
-      
       scrollRef.current.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth"
       })
-      
-      // Update button states after scroll animation
       setTimeout(checkScrollPosition, 300)
     }
   }
@@ -198,45 +206,31 @@ function PackageSection({
   return (
     <div className="mb-12">
       <h3 className="text-2xl font-bold text-center mb-6 px-4">{packageType} Menu</h3>
-      
       <div className="relative">
-        {/* Left Navigation Button */}
         <button
           className={`absolute left-2 top-1/2 transform -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm shadow-lg rounded-full p-1.5 transition-all duration-200 ${
-            canScrollLeft 
-              ? 'opacity-100 hover:bg-white hover:shadow-xl' 
-              : 'opacity-50 cursor-not-allowed'
+            canScrollLeft ? 'opacity-100 hover:bg-white hover:shadow-xl' : 'opacity-50 cursor-not-allowed'
           }`}
           onClick={() => scroll("left")}
           disabled={!canScrollLeft}
-          aria-label="Scroll left"
         >
           <ChevronLeft size={18} className="text-gray-700" />
         </button>
 
-        {/* Right Navigation Button */}
         <button
           className={`absolute right-2 top-1/2 transform -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm shadow-lg rounded-full p-1.5 transition-all duration-200 ${
-            canScrollRight 
-              ? 'opacity-100 hover:bg-white hover:shadow-xl' 
-              : 'opacity-50 cursor-not-allowed'
+            canScrollRight ? 'opacity-100 hover:bg-white hover:shadow-xl' : 'opacity-50 cursor-not-allowed'
           }`}
           onClick={() => scroll("right")}
           disabled={!canScrollRight}
-          aria-label="Scroll right"
         >
           <ChevronRight size={18} className="text-gray-700" />
         </button>
 
-        {/* Scrollable Container */}
         <div 
           ref={scrollRef}
           className="flex gap-3 overflow-x-auto py-2 scrollbar-hide scroll-smooth"
           onScroll={checkScrollPosition}
-          style={{
-            scrollbarWidth: 'none', /* Firefox */
-            msOverflowStyle: 'none', /* IE and Edge */
-          }}
         >
           {items.map(item => (
             <div 
@@ -245,20 +239,20 @@ function PackageSection({
             >
               <MealCard
                 item={item}
-                isFavorite={!!favorites[item.id]}
-                onToggleFavorite={() => handleToggleFavorite(item.id)}
+                quantity={quantities[item.id] || 0}
+                onQuantityChange={onQuantityChange}
+                onAddToCart={onAddToCart}
               />
             </div>
           ))}
         </div>
       </div>
 
-      {/* See More Link */}
+      {/* ✅ Use packageId in route */}
       <div className="flex justify-end mt-4 px-4">
         <Link 
-          href={`/menu/${packageType.toLowerCase()}`} 
+          href={`/menu/${packageId}`} 
           className="text-primary font-medium flex items-center hover:underline transition-colors"
-          aria-label={`See more ${packageType} menu items`}
         >
           See More <ChevronRight size={16} className="ml-1" />
         </Link>
@@ -267,19 +261,23 @@ function PackageSection({
   )
 }
 
+// MealCard component remains unchanged – you already have that correctly implemented.
+
+
+
 function MealCard({ 
   item, 
-  isFavorite, 
-  onToggleFavorite 
+  quantity,
+  onQuantityChange,
+  onAddToCart
 }: { 
   item: MenuItem
-  isFavorite: boolean
-  onToggleFavorite: () => void 
+  quantity: number
+  onQuantityChange: (itemId: string, change: number) => void
+  onAddToCart: (item: MenuItem) => void
 }) {
-  const [isIngredientsOpen, setIsIngredientsOpen] = useState(false)
-  const imageAspectRatio = 4 / 3
-  const imageHeight = 200
-  const imageWidth = imageHeight * imageAspectRatio
+  const imageAspectRatio = 1 / 1
+  const imageSize = 200
 
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm flex flex-col h-full bg-white hover:shadow-md transition-shadow duration-200">
@@ -288,8 +286,8 @@ function MealCard({
           <Image
             src={item.image}
             alt={`${item.packageType} ${item.mealType} - ${item.day}`}
-            width={imageWidth}
-            height={imageHeight}
+            width={imageSize}
+            height={imageSize}
             className="absolute top-0 left-0 w-full h-full object-cover"
             quality={80}
             priority={false}
@@ -298,29 +296,13 @@ function MealCard({
 
         {/* Overlay with Day and Meal Type */}
         <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/60 to-transparent text-white p-2 flex items-start justify-between">
-          <div className="text-xs font-medium">{item.day}</div>
-          <div className="absolute left-1/2 transform -translate-x-1/2 top-2">
-            <div className="bg-green-600 text-white text-xs px-2 py-1 rounded-full flex items-center">
+          <div className="text-xs font-medium text-white bg-primary rounded-full px-2 py-1">{item.day}</div>
+          <div className="absolute right-2 top-2">
+            <div className="text-white bg-primary rounded-full px-2 py-1 text-xs px-2 py-1 rounded-full flex items-center">
               <span className="w-2 h-2 bg-white rounded-full mr-1"></span>
               {item.mealType.charAt(0).toUpperCase() + item.mealType.slice(1)}
             </div>
           </div>
-        </div>
-
-        {/* Favorite Button */}
-        <div className="absolute top-2 right-2 z-10">
-          <button 
-            onClick={onToggleFavorite} 
-            className={`p-1.5 rounded-full shadow-md transition-all duration-200 ${
-              isFavorite ? "bg-green-100 scale-110" : "bg-white/90 hover:bg-white"
-            }`}
-            aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-          >
-            <Heart 
-              size={16} 
-              className={isFavorite ? "text-green-600 fill-green-600" : "text-gray-500"} 
-            />
-          </button>
         </div>
 
         {/* Price Badge */}
@@ -331,53 +313,93 @@ function MealCard({
 
       {/* Card Content */}
       <div className="p-3 flex flex-col flex-grow">
-        {/* Desktop Ingredients List */}
-        <div className="hidden sm:block space-y-2 mb-4 flex-grow">
-          {item.ingredients.slice(0, 3).map((ingredient, index) => (
-            <div key={index} className="flex items-center justify-between text-sm">
-              <div className="flex items-center">
-                <Check size={14} className="text-green-600 mr-2" />
-                <span className="truncate">{ingredient.name}</span>
-              </div>
-              <span className="text-gray-500 text-xs ml-2 flex-shrink-0">
-                {ingredient.quantity} {ingredient.unit}
+        {/* Ingredients - Horizontal Display */}
+        <div className="mb-4 flex-grow">
+          <div className="flex flex-wrap gap-1 text-xs">
+            {item.ingredients.slice(0, 4).map((ingredient, index) => (
+              <span 
+                key={index} 
+                className="bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200"
+              >
+                {ingredient.name}
               </span>
-            </div>
-          ))}
-          {item.ingredients.length > 3 && (
-            <div className="text-xs text-gray-500 text-center">
-              +{item.ingredients.length - 3} more ingredients
-            </div>
-          )}
+            ))}
+            {item.ingredients.length > 4 && (
+              <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full border border-gray-200">
+                +{item.ingredients.length - 4} more
+              </span>
+            )}
+          </div>
         </div>
 
-        {/* Mobile Ingredients Dialog */}
-        <div className="sm:hidden mb-3">
-          <Dialog open={isIngredientsOpen} onOpenChange={setIsIngredientsOpen}>
-            <DialogTrigger asChild>
-              <button className="w-full text-center text-green-600 text-sm font-medium py-2 border border-green-600 rounded-md hover:bg-green-50 transition-colors">
-                View Ingredients
+        {/* Desktop: Quantity Controls and Add to Cart in one row */}
+        <div className="hidden sm:flex items-center justify-between gap-2">
+          <div className="flex items-center border border-gray-300 rounded-md">
+            <button
+              onClick={() => onQuantityChange(item.id, -1)}
+              className="p-1 hover:bg-gray-100 transition-colors"
+              disabled={quantity === 0}
+            >
+              <Minus size={14} className={quantity === 0 ? "text-gray-300" : "text-gray-600"} />
+            </button>
+            <span className="px-3 py-1 text-sm font-medium min-w-[2rem] text-center">
+              {quantity}
+            </span>
+            <button
+              onClick={() => onQuantityChange(item.id, 1)}
+              className="p-1 hover:bg-gray-100 transition-colors"
+            >
+              <Plus size={14} className="text-gray-600" />
+            </button>
+          </div>
+          <button
+            onClick={() => onAddToCart(item)}
+            disabled={quantity === 0}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              quantity === 0 
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
+                : "bg-green-600 text-white hover:bg-green-700"
+            }`}
+          >
+            <ShoppingCart size={14} />
+            Add
+          </button>
+        </div>
+
+        {/* Mobile: Quantity Controls in one row, Add to Cart in second row */}
+        <div className="sm:hidden space-y-2">
+          <div className="flex items-center justify-center">
+            <div className="flex items-center border border-gray-300 rounded-md">
+              <button
+                onClick={() => onQuantityChange(item.id, -1)}
+                className="p-2 hover:bg-gray-100 transition-colors"
+                disabled={quantity === 0}
+              >
+                <Minus size={16} className={quantity === 0 ? "text-gray-300" : "text-gray-600"} />
               </button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>{item.name} - Ingredients</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-3">
-                {item.ingredients.map((ingredient, index) => (
-                  <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
-                    <div className="flex items-center">
-                      <Check size={16} className="text-green-600 mr-2" />
-                      <span>{ingredient.name}</span>
-                    </div>
-                    <span className="text-gray-600 text-sm">
-                      {ingredient.quantity} {ingredient.unit}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </DialogContent>
-          </Dialog>
+              <span className="px-4 py-2 text-sm font-medium min-w-[3rem] text-center">
+                {quantity}
+              </span>
+              <button
+                onClick={() => onQuantityChange(item.id, 1)}
+                className="p-2 hover:bg-gray-100 transition-colors"
+              >
+                <Plus size={16} className="text-gray-600" />
+              </button>
+            </div>
+          </div>
+          <button
+            onClick={() => onAddToCart(item)}
+            disabled={quantity === 0}
+            className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              quantity === 0 
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
+                : "bg-green-600 text-white hover:bg-green-700"
+            }`}
+          >
+            <ShoppingCart size={16} />
+            Add to Cart
+          </button>
         </div>
       </div>
     </div>

@@ -14,10 +14,6 @@ import CartModal from "./cart-modal"
 import Image from "next/image"
 import AddBalanceModal from "./AddBalanceModal"
 
-
-
-
-
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
@@ -98,37 +94,34 @@ export default function Navbar() {
           {/* Desktop User Actions */}
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated && hasMounted && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center">
                 <button
                   onClick={() => setIsBalanceVisible(prev => !prev)}
-                  className="flex items-center gap-1 border rounded-l-full px-2 py-1.5 bg-primary text-white h-[42px] transition-all duration-300 w-[140px] overflow-hidden"
+                  className="flex items-center justify-center gap-2 bg-primary text-white rounded-l-full px-4 py-2.5 h-[42px] hover:bg-white hover:text-green-900 transition-all duration-300 min-w-[140px]"
                 >
-                  <CreditCard size={16} className="text-primary shrink-0" />
-                  <span
-                    className={`text-sm font-medium transition-all duration-300 ease-in-out transform ${isBalanceVisible ? "translate-x-0 opacity-100" : "-translate-x-2 opacity-0"
-                      }`}
-                  >
-                    ৳{user?.balance?.toLocaleString() || "0"}
-                  </span>
-                  {!isBalanceVisible && (
-                    <span className="text-sm font-medium text-white transition-opacity duration-300 flex">
-                      <Eye className="text-white" size={16} /> <div className="pl-1">Balance</div>
-
-                    </span>
-                  )}
+                  <CreditCard size={16} className="text-white flex-shrink-0 " />
+                  <div className="flex items-center gap-1 overflow-hidden">
+                    {isBalanceVisible ? (
+                      <span className="text-sm font-medium whitespace-nowrap animate-in slide-in-from-right-2 duration-1000">
+                        ৳{user?.balance?.toLocaleString() || "0"}
+                      </span>
+                    ) : (
+                      <div className="flex items-center gap-1 animate-in slide-in-from-left-2 duration-1000">
+                        {/* <Eye size={16} className="text-white flex-shrink-0" /> */}
+                        <span className="text-sm font-medium whitespace-nowrap">Balance</span>
+                      </div>
+                    )}
+                  </div>
                 </button>
-
                 <button
                   onClick={() => setIsBalanceModalOpen(true)}
-                  className="bg-primary text-white rounded-r-full px-4 py-1.5 h-[42px] hover:bg-opacity-90 transition-colors"
+                  className="bg-primary text-white rounded-r-full px-3 py-2.5 h-[42px] hover:bg-white hover:text-green-900 transition-colors flex items-center justify-center"
+                  aria-label="Add Balance"
                 >
-                  <Plus className="text-white" size={16} />
+                  <Plus size={16} className="text-white hover:text-green-900" />
                 </button>
               </div>
-
             )}
-
-            
 
             {/* Cart */}
             <div className="relative">
@@ -155,9 +148,6 @@ export default function Navbar() {
                       <User size={20} className="text-gray-600" />
                     )}
                   </div>
-                  {/* <div className="text-sm hidden md:block">
-                    <p className="font-medium">{hasMounted && user?.name}</p>
-                  </div> */}
                 </button>
 
                 {isDropdownOpen && (
@@ -177,55 +167,55 @@ export default function Navbar() {
             )}
           </div>
 
-        
-        {/* Mobile */}
-<div className="md:hidden flex items-center space-x-4">
-  {isAuthenticated && hasMounted && (
-    <div className="flex items-center gap-1">
-      {/* Toggle balance */}
-      <button
-        onClick={() => setIsBalanceVisible(prev => !prev)}
-        className="flex items-center gap-1 text-primary text-sm border border-primary px-3 py-1  h-[32px] rounded-l-full transition-all duration-300"
-      >
-        <CreditCard size={16} />
-        {isBalanceVisible ? (
-          <span className="transition-opacity duration-300">
-            ৳{user?.balance?.toLocaleString() || "0"}
-          </span>
-        ) : (
-          <span>Check</span>
-        )}
-      </button>
+          {/* Mobile */}
+          <div className="md:hidden flex items-center space-x-3">
+            {isAuthenticated && hasMounted && (
+              <div className="flex items-center">
+                <button
+                  onClick={() => setIsBalanceVisible(prev => !prev)}
+                  className="flex items-center justify-center gap-1.5 text-primary text-xs border border-primary bg-white rounded-l-full px-3 py-2 h-[36px] hover:bg-gray-50 transition-all duration-300 min-w-[90px]"
+                >
+                  <CreditCard size={14} className="flex-shrink-0" />
+                  <div className="overflow-hidden">
+                    {isBalanceVisible ? (
+                      <span className="font-medium whitespace-nowrap animate-in slide-in-from-right-2 duration-300">
+                        ৳{user?.balance?.toLocaleString() || "0"}
+                      </span>
+                    ) : (
+                      <div className="flex items-center gap-1 animate-in slide-in-from-left-2 duration-300">
+                        {/* <Eye size={12} className="flex-shrink-0" /> */}
+                        <span className="font-medium whitespace-nowrap">Check</span>
+                      </div>
+                    )}
+                  </div>
+                </button>
+                <button
+                  onClick={() => setIsBalanceModalOpen(true)}
+                  className="bg-primary text-white rounded-r-full px-2.5 py-2 h-[36px] hover:bg-opacity-90 transition-colors flex items-center justify-center"
+                  aria-label="Add Balance"
+                >
+                  <Plus size={14} className="text-white" />
+                </button>
+              </div>
+            )}
 
-      {/* Add Balance */}
-      <button
-        onClick={() => setIsBalanceModalOpen(true)}
-        className="bg-primary text-white rounded-r-full px-3 py-1 h-[32px] hover:bg-opacity-90 transition-colors"
-        aria-label="Add Balance"
-      >
-        <Plus size={16} />
-      </button>
-    </div>
-  )}
+            {/* Cart */}
+            <div className="relative">
+              <button onClick={toggleCart} className="flex items-center">
+                <ShoppingCart className={isActive("/cart") ? "text-secondary" : "text-primary"} />
+                {hasMounted && totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-secondary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                )}
+              </button>
+            </div>
 
-  {/* Cart */}
-  <div className="relative">
-    <button onClick={toggleCart} className="flex items-center">
-      <ShoppingCart className={isActive("/cart") ? "text-secondary" : "text-primary"} />
-      {hasMounted && totalItems > 0 && (
-        <span className="absolute -top-2 -right-2 bg-secondary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-          {totalItems}
-        </span>
-      )}
-    </button>
-  </div>
-
-  {/* Hamburger */}
-  <button className="text-primary" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-    {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-  </button>
-</div>
-
+            {/* Hamburger */}
+            <button className="text-primary" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
@@ -254,10 +244,6 @@ export default function Navbar() {
                           <User size={20} className="text-gray-600" />
                         )}
                       </div>
-                      {/* <div className="text-sm">
-                        <p className="font-medium">{hasMounted && user?.name}</p>
-                        <p className="text-xs text-gray-500">User</p>
-                      </div> */}
                     </div>
                     <button onClick={handleLogout} className="text-red-600 hover:text-primary">
                       Logout

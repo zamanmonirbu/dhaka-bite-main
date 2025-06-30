@@ -8,7 +8,6 @@ import { useEffect, useState } from "react"
 import { useGetHeroImagesQuery } from "@/store/api/heroImageApi"
 import { useGetPackagesQuery } from "@/store/api/packageApi"
 
-
 export default function HeroSection() {
   const [showCopiedMessage, setShowCopiedMessage] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -160,27 +159,37 @@ export default function HeroSection() {
             </Link>
           </div>
 
-         <div className="grid grid-cols-3 gap-3">
-  {packages.map((packageItem) => (
-    <Link key={packageItem._id} href={`/package/${packageItem._id}`}>
-      <div className="flex flex-col gap-2 p-4 rounded-md shadow-md hover:shadow-lg transition">
-        <Image
-          src={packageItem.image}
-          alt={packageItem.packageName}
-          width={15}
-          height={15}
-          className="w-full sm:h-16 md:h-20 lg:h-24 xl:h-32 h-16 object-cover rounded-full"
-        />
-        <h4 className="text-lg font-semibold">{packageItem.packageName}</h4>
-        <p className="text-sm">{packageItem.description}</p>
-      </div>
-    </Link>
-  ))}
-</div>
-
+          {/* Responsive Packages Grid */}
+          <div className="flex flex-row gap-1 sm:gap-1">
+            {packages.map((packageItem) => (
+              <Link key={packageItem._id} href={`/menu/${packageItem._id}`}>
+                <div className="flex flex-col items-center gap-1 p-1 sm:p-1 rounded-md shadow-md hover:shadow-lg transition-all duration-200 bg-white border border-gray-100 min-w-[120px] sm:min-w-[140px] md:min-w-[160px] lg:min-w-[120px] xl:min-w-[140px] 2xl:min-w-[160px]">
+                  {/* Package Image */}
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-12 lg:h-12 xl:w-14 xl:h-14 2xl:w-16 2xl:h-16 flex-shrink-0">
+                    <Image
+                      src={packageItem.image}
+                      alt={packageItem.packageName}
+                      width={64}
+                      height={64}
+                      className="w-full h-full object-cover rounded-full border-2 border-gray-200"
+                    />
+                  </div>
+                  
+                  {/* Package Content */}
+                  <div className="flex flex-col items-center text-center space-y-1 flex-grow">
+                    <h4 className="text-xs sm:text-sm md:text-base lg:text-sm xl:text-base font-semibold text-gray-800 line-clamp-2 leading-tight">
+                      {packageItem.packageName}
+                    </h4>
+                    <p className="text-xs sm:text-sm lg:text-xs xl:text-sm text-gray-600 line-clamp-2 leading-tight">
+                      {packageItem.description}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </section>
   )
 }
-

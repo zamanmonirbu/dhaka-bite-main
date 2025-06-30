@@ -79,7 +79,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="bg-yellow-50 p-4 rounded-md mb-4">
-            <p className="font-medium text-center">Bkash send money to: <span className="text-green-600">01621362024</span></p>
+            <p className="font-medium text-center">Bkash personal acccount: <span className="text-green-600">01860106511</span></p>
           </div>
           
           <div>

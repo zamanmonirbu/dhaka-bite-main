@@ -23,7 +23,7 @@ export const deliveryApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // Get all delivery areas
     getDeliveryAreas: builder.query<{ success: boolean; data: DeliveryArea[] }, void>({
-      query: () => "/delivery/areas",
+      query: () => "/delivery-area",
       providesTags: ["Delivery"],
     }),
 

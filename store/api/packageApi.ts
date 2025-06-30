@@ -18,6 +18,12 @@ export const packageApi = baseApi.injectEndpoints({
       query: () => "/meal-package",
       providesTags: ["Package"],
     }),
+
+    getPackageById: builder.query<IMealPackage | undefined, string>({
+      query: (id) => `/meal-package/${id}`,
+      providesTags: ["Package"],
+    }),
+
     createPackage: builder.mutation<any, Partial<IMealPackage>>({
       query: (newPackage) => ({
         url: "/meal-package",
@@ -46,6 +52,7 @@ export const packageApi = baseApi.injectEndpoints({
 
 export const {
   useGetPackagesQuery,
+  useGetPackageByIdQuery,
   useCreatePackageMutation,
   useUpdatePackageMutation,
   useDeletePackageMutation,
