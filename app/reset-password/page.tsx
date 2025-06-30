@@ -13,7 +13,7 @@ export default function ResetPasswordPage() {
       {/* Food Background Image - Left Side */}
       <div className="hidden md:block md:w-1/2 relative">
         <Image
-          src="/bengali-fish-dish.jpg"
+          src="https://res.cloudinary.com/dv4ouaclr/image/upload/v1751196385/hero-images/healthy-food.jpg"
           alt="Bengali fish dish with vegetables"
           fill
           className="object-cover"

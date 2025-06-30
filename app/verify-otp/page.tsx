@@ -13,7 +13,7 @@ export default function VerifyOtpPage() {
       {/* Food Background Image - Left Side */}
       <div className="hidden md:block md:w-1/2 relative">
         <Image
-          src="/bengali-food-curry.jpg"
+          src="https://res.cloudinary.com/dv4ouaclr/image/upload/v1751196385/hero-images/healthy-food.jpg"
           alt="Traditional Bengali curry dishes"
           fill
           className="object-cover"

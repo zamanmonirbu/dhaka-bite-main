@@ -13,7 +13,7 @@ export default function ForgotPasswordPage() {
       {/* Food Background Image - Left Side */}
       <div className="hidden md:block md:w-1/2 relative">
         <Image
-          src="/bengali-food-vada.jpg"
+          src="https://res.cloudinary.com/dv4ouaclr/image/upload/v1751196385/hero-images/healthy-food.jpg"
           alt="Traditional Bengali food with vada and chutneys"
           fill
           className="object-cover"
