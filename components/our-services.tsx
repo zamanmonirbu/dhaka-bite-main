@@ -11,6 +11,8 @@ import { useGetPackagesQuery } from "@/store/api/packageApi"
 import type { CartItem } from "@/store/slices/cartSlice"
 
 interface MenuItem {
+  discountedPrice: any
+  actualPrice: any
   id: string
   packageType: string
   mealType: "breakfast" | "lunch" | "dinner"
@@ -39,6 +41,10 @@ const convertApiMealToMenuItem = (apiMeal: any, day: string, packageInfo: any): 
     description: apiMeal.description,
     ingredients: apiMeal.ingredients,
     deliveryCharges: apiMeal.deliveryCharges,
+    actualPrice: apiMeal.actualPrice || packageInfo.actualPrice || apiMeal.price,
+    discountedPrice: apiMeal.discountedPrice || packageInfo.discountedPrice || apiMeal.price,
+    savings: apiMeal.savings || packageInfo.savings || 0
+    
   }
 }
 
@@ -67,16 +73,21 @@ export default function OurServices() {
     return menuItems
   }
 
+  // Helper function to get quantity with default value of 1
+  const getQuantity = (itemId: string): number => {
+    return quantities[itemId] ?? 1
+  }
+
   const handleQuantityChange = (itemId: string, change: number) => {
     setQuantities(prev => {
-      const currentQuantity = prev[itemId] || 0
-      const newQuantity = Math.max(0, currentQuantity + change)
+      const currentQuantity = prev[itemId] ?? 1
+      const newQuantity = Math.max(1, currentQuantity + change)
       return { ...prev, [itemId]: newQuantity }
     })
   }
 
   const handleAddToCart = async (item: MenuItem) => {
-    const quantity = quantities[item.id] || 1
+    const quantity = getQuantity(item.id)
 
     for (let i = 0; i < quantity; i++) {
       const cartItem: CartItem = {
@@ -106,7 +117,8 @@ export default function OurServices() {
       description: `${quantity} x ${item.packageType} ${item.mealType} (${item.day}) added to your cart` 
     })
 
-    setQuantities(prev => ({ ...prev, [item.id]: 0 }))
+    // Reset to default quantity of 1 after adding to cart
+    setQuantities(prev => ({ ...prev, [item.id]: 1 }))
   }
 
   const menuItems = getMenuItemsByPackage()
@@ -148,7 +160,7 @@ export default function OurServices() {
             packageType={pkg.packageName}
             packageId={pkg._id}
             items={menuItems.filter(item => item.packageType === pkg.packageName)}
-            quantities={quantities}
+            getQuantity={getQuantity}
             onQuantityChange={handleQuantityChange}
             onAddToCart={handleAddToCart}
           />
@@ -162,14 +174,14 @@ function PackageSection({
   packageType, 
   packageId,
   items, 
-  quantities,
+  getQuantity,
   onQuantityChange,
   onAddToCart
 }: { 
   packageType: string
   packageId: string
   items: MenuItem[]
-  quantities: Record<string, number>
+  getQuantity: (itemId: string) => number
   onQuantityChange: (itemId: string, change: number) => void
   onAddToCart: (item: MenuItem) => void
 }) {
@@ -192,8 +204,8 @@ function PackageSection({
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
       const isMobile = window.innerWidth < 640
-      const cardWidth = isMobile ? 180 : 220
-      const gap = 12
+      const cardWidth = isMobile ? 200 : 240
+      const gap = 16
       const scrollAmount = cardWidth + gap
       scrollRef.current.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
@@ -229,17 +241,17 @@ function PackageSection({
 
         <div 
           ref={scrollRef}
-          className="flex gap-3 overflow-x-auto py-2 scrollbar-hide scroll-smooth"
+          className="flex gap-4 overflow-x-auto py-2 scrollbar-hide scroll-smooth px-4"
           onScroll={checkScrollPosition}
         >
           {items.map(item => (
             <div 
               key={item.id} 
-              className="min-w-[170px] max-w-[170px] sm:min-w-[200px] sm:max-w-[200px] flex-shrink-0"
+              className="min-w-[200px] max-w-[200px] sm:min-w-[240px] sm:max-w-[240px] flex-shrink-0"
             >
               <MealCard
                 item={item}
-                quantity={quantities[item.id] || 0}
+                quantity={getQuantity(item.id)}
                 onQuantityChange={onQuantityChange}
                 onAddToCart={onAddToCart}
               />
@@ -248,7 +260,6 @@ function PackageSection({
         </div>
       </div>
 
-      {/* ✅ Use packageId in route */}
       <div className="flex justify-end mt-4 px-4">
         <Link 
           href={`/menu/${packageId}`} 
@@ -261,146 +272,99 @@ function PackageSection({
   )
 }
 
-// MealCard component remains unchanged – you already have that correctly implemented.
-
-
-
-function MealCard({ 
-  item, 
-  quantity,
-  onQuantityChange,
-  onAddToCart
-}: { 
+function MealCard({ item, quantity, onQuantityChange, onAddToCart }: { 
   item: MenuItem
   quantity: number
   onQuantityChange: (itemId: string, change: number) => void
   onAddToCart: (item: MenuItem) => void
 }) {
-  const imageAspectRatio = 1 / 1
-  const imageSize = 200
-
+  console.log("item:", item);
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm flex flex-col h-full bg-white hover:shadow-md transition-shadow duration-200">
-      <div className="relative flex-1">
-        <div className="w-full" style={{ paddingTop: `${100 / imageAspectRatio}%` }}>
+    <div className="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow duration-300">
+      {/* Image Section with Discount Badge */}
+      <div className="relative">
+        <div className="aspect-square w-full overflow-hidden">
           <Image
             src={item.image}
             alt={`${item.packageType} ${item.mealType} - ${item.day}`}
-            width={imageSize}
-            height={imageSize}
-            className="absolute top-0 left-0 w-full h-full object-cover"
+            width={240}
+            height={240}
+            className="w-full h-full object-cover"
             quality={80}
             priority={false}
           />
         </div>
+        
+       {item?.actualPrice && (
+  <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+    {Math.round(((item.actualPrice - item.discountedPrice) / item.actualPrice * 100))}% OFF
+  </div>
+)}
+       
 
-        {/* Overlay with Day and Meal Type */}
-        <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/60 to-transparent text-white p-2 flex items-start justify-between">
-          <div className="text-xs font-medium text-white bg-primary rounded-full px-2 py-1">{item.day}</div>
-          <div className="absolute right-2 top-2">
-            <div className="text-white bg-primary rounded-full px-2 py-1 text-xs px-2 py-1 rounded-full flex items-center">
-              <span className="w-2 h-2 bg-white rounded-full mr-1"></span>
-              {item.mealType.charAt(0).toUpperCase() + item.mealType.slice(1)}
-            </div>
-          </div>
-        </div>
-
-        {/* Price Badge */}
-        <div className="absolute bottom-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded-full font-medium shadow-md">
-          ৳{item.price}
-        </div>
       </div>
 
-      {/* Card Content */}
-      <div className="p-3 flex flex-col flex-grow">
-        {/* Ingredients - Horizontal Display */}
-        <div className="mb-4 flex-grow">
-          <div className="flex flex-wrap gap-1 text-xs">
-            {item.ingredients.slice(0, 4).map((ingredient, index) => (
-              <span 
-                key={index} 
-                className="bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200"
-              >
-                {ingredient.name}
-              </span>
-            ))}
-            {item.ingredients.length > 4 && (
-              <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full border border-gray-200">
-                +{item.ingredients.length - 4} more
-              </span>
-            )}
+      {/* Content Section */}
+      <div className="p-4 space-y-2">
+        {/* Title and Price */}
+        <div className="flex justify-between items-start">
+          <div>
+            <h3 className="font-bold text-sm text-gray-900 leading-tight ">
+              {item.day} <span className="text-green-600 pl-4">{item.mealType.charAt(0).toUpperCase() + item.mealType.slice(1)}</span>
+            </h3>
+          </div>
+          <div className="text-right">
+            <span className="text-sm font-bold text-gray-900">৳{item.price}</span>
           </div>
         </div>
 
-        {/* Desktop: Quantity Controls and Add to Cart in one row */}
-        <div className="hidden sm:flex items-center justify-between gap-2">
-          <div className="flex items-center border border-gray-300 rounded-md">
+        {/* Ingredients */}
+        <div className="flex flex-wrap gap-2">
+          {item.ingredients.slice(0, 4).map((ingredient, index) => (
+            <span 
+              key={index} 
+              className="bg-green-100 text-green-700 text-sm px-3 py-1 rounded-full font-medium"
+            >
+              {ingredient.name}
+            </span>
+          ))}
+          {item.ingredients.length > 4 && (
+            <span className="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full font-medium">
+              +{item.ingredients.length - 4}
+            </span>
+          )}
+        </div>
+
+        {/* Quantity Controls */}
+        <div className="flex justify-center">
+          <div className="flex items-center border-2 border-gray-200 rounded-lg overflow-hidden">
             <button
               onClick={() => onQuantityChange(item.id, -1)}
-              className="p-1 hover:bg-gray-100 transition-colors"
-              disabled={quantity === 0}
+              className="px-4 py-2 bg-gray-50 hover:bg-gray-100 transition-colors"
+              disabled={quantity === 1}
             >
-              <Minus size={14} className={quantity === 0 ? "text-gray-300" : "text-gray-600"} />
+              <Minus size={18} className={quantity === 1 ? "text-gray-300" : "text-gray-600"} />
             </button>
-            <span className="px-3 py-1 text-sm font-medium min-w-[2rem] text-center">
+            <div className="px-6 py-2 bg-white font-bold text-lg min-w-[60px] text-center">
               {quantity}
-            </span>
+            </div>
             <button
               onClick={() => onQuantityChange(item.id, 1)}
-              className="p-1 hover:bg-gray-100 transition-colors"
+              className="px-4 py-2 bg-gray-50 hover:bg-gray-100 transition-colors"
             >
-              <Plus size={14} className="text-gray-600" />
+              <Plus size={18} className="text-gray-600" />
             </button>
           </div>
-          <button
-            onClick={() => onAddToCart(item)}
-            disabled={quantity === 0}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              quantity === 0 
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
-                : "bg-green-600 text-white hover:bg-green-700"
-            }`}
-          >
-            <ShoppingCart size={14} />
-            Add
-          </button>
         </div>
 
-        {/* Mobile: Quantity Controls in one row, Add to Cart in second row */}
-        <div className="sm:hidden space-y-2">
-          <div className="flex items-center justify-center">
-            <div className="flex items-center border border-gray-300 rounded-md">
-              <button
-                onClick={() => onQuantityChange(item.id, -1)}
-                className="p-2 hover:bg-gray-100 transition-colors"
-                disabled={quantity === 0}
-              >
-                <Minus size={16} className={quantity === 0 ? "text-gray-300" : "text-gray-600"} />
-              </button>
-              <span className="px-4 py-2 text-sm font-medium min-w-[3rem] text-center">
-                {quantity}
-              </span>
-              <button
-                onClick={() => onQuantityChange(item.id, 1)}
-                className="p-2 hover:bg-gray-100 transition-colors"
-              >
-                <Plus size={16} className="text-gray-600" />
-              </button>
-            </div>
-          </div>
-          <button
-            onClick={() => onAddToCart(item)}
-            disabled={quantity === 0}
-            className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              quantity === 0 
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
-                : "bg-green-600 text-white hover:bg-green-700"
-            }`}
-          >
-            <ShoppingCart size={16} />
-            Add to Cart
-          </button>
-        </div>
+        {/* Add to Cart Button */}
+        <button
+          onClick={() => onAddToCart(item)}
+          className="w-full bg-green-700 hover:bg-green-800 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+        >
+          <ShoppingCart size={20} />
+          Add to cart
+        </button>
       </div>
     </div>
   )

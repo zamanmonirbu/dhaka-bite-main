@@ -80,7 +80,7 @@ export default function HeroSection() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Facebook size={20} className="text-white" />
+              <Facebook size={16} className="text-white" />
             </Link>
             <Link
               href="https://www.instagram.com/dhakabite?igsh=MXNpNzN3ejJwZzExdw=="
@@ -88,7 +88,7 @@ export default function HeroSection() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Instagram size={20} className="text-white" />
+              <Instagram size={16} className="text-white" />
             </Link>
             <Link
               href="https://www.tiktok.com/@dhaka_bite?_t=ZS-8wsWsjYPj8i&_r=1"
@@ -96,15 +96,15 @@ export default function HeroSection() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <SiTiktok size={20} className="text-white" />
+              <SiTiktok size={16} className="text-white" />
             </Link>
             <Link
-              href="https://wa.me/01400650261"
+              href="https://wa.me/01621362024"
               className="bg-primary p-2 rounded-md hover:bg-green-600 shadow-md transition"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <SiWhatsapp size={20} className="text-white" />
+              <SiWhatsapp size={16} className="text-white" />
             </Link>
           </div>
 
@@ -130,10 +130,10 @@ export default function HeroSection() {
           <div className="flex flex-col gap-3">
             <div className="flex gap-2 w-full">
               <Link
-                href="/all-package/foods"
-                className="btn-primary text-sm px-4 py-2 w-1/2 text-center"
+                href="/subscription"
+                className="border w-1/2 border-primary text-primary px-4 py-2 rounded-md font-semibold text-sm hover:bg-primary hover:text-white transition-colors"
               >
-                Order Now
+                Subscribe Now
               </Link>
               <button
                 onClick={handleContactClick}
@@ -150,27 +150,19 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* Subscribe Button */}
-          <div>
-            <Link href="/subscription">
-              <button className="border w-full border-primary text-primary px-4 py-2 rounded-md font-semibold text-sm hover:bg-primary hover:text-white transition-colors">
-                Subscribe Now
-              </button>
-            </Link>
-          </div>
 
           {/* Responsive Packages Grid */}
           <div className="flex flex-row gap-1 sm:gap-1">
             {packages.map((packageItem) => (
               <Link key={packageItem._id} href={`/menu/${packageItem._id}`}>
-                <div className="flex flex-col items-center gap-1 p-1 sm:p-1 rounded-md shadow-md hover:shadow-lg transition-all duration-200 bg-white border border-gray-100 min-w-[120px] sm:min-w-[140px] md:min-w-[160px] lg:min-w-[120px] xl:min-w-[140px] 2xl:min-w-[160px]">
+                <div className="flex flex-col items-center gap-1 p-1 sm:p-1 rounded-md shadow-md hover:shadow-lg transition-all duration-200 bg-white border border-gray-100 min-w-[90px] md:min-w-[110px] lg:min-w-[90px] xl:min-w-[110px] 2xl:min-w-[130px]">
                   {/* Package Image */}
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-12 lg:h-12 xl:w-14 xl:h-14 2xl:w-16 2xl:h-16 flex-shrink-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-10 lg:h-10 xl:w-12 xl:h-12 2xl:w-14 2xl:h-14 flex-shrink-0">
                     <Image
                       src={packageItem.image}
                       alt={packageItem.packageName}
-                      width={64}
-                      height={64}
+                      width={48}
+                      height={48}
                       className="w-full h-full object-cover rounded-full border-2 border-gray-200"
                     />
                   </div>

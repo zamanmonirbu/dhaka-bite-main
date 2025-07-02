@@ -165,15 +165,14 @@ export const authApi = baseApi.injectEndpoints({
       }),
     }),
 
-    verifyEmail: builder.mutation<{ success: boolean; message: string }, { token: string }>({
-      query: (tokenData) => ({
-        url: "/auth/verify-email",
-        method: "POST",
-        body: tokenData,
+    verifyEmail: builder.mutation<{ success: boolean; message: string }, { otp: string; email: string }>({
+      query: (verificationData) => ({
+        url: '/auth/verify-email',
+        method: 'POST',
+        body: verificationData,
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
     }),
-
     // Balance management
     addBalance: builder.mutation<{ success: boolean; data: User }, { amount: number; paymentMethod: string }>({
       query: (balanceData) => ({

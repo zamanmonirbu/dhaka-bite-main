@@ -72,9 +72,9 @@ const handleSubmit = async (e: React.FormEvent) => {
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Add Balance via bKash</DialogTitle>
-          <DialogDescription>
+          {/* <DialogDescription>
             Send money to our bKash merchant number and fill the details below.
-          </DialogDescription>
+          </DialogDescription> */}
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -96,7 +96,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium mb-1">Last 4 Digits of Transaction</label>
+            <label className="block text-sm font-medium mb-1">Last 4 Digits of Transaction Id</label>
             <Input
               type="text"
               name="lastFourDigits"

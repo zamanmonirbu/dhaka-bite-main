@@ -68,7 +68,9 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="bg-[#f2e2b7] py-4 shadow-sm">
+    <nav className="sticky top-0 z-50 bg-[#f2e2b7] py-4 shadow-sm">
+
+
         <div className="container-custom flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center">

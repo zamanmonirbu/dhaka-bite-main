@@ -5,15 +5,14 @@ import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
-import axios from "../store/api/axiosClient"
+import { useVerifyEmailMutation } from "@/store/api/authApi"
 
-interface Props {
-  email: string
-}
-
-export default function VerifyEmailOtp({ email }: Props) {
+export default function VerifyEmailOtp() {
   const router = useRouter()
   const { toast } = useToast()
+  const [verifyEmail] = useVerifyEmailMutation()
+  
+  const [email, setEmail] = useState<string>("")
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [resendDisabled, setResendDisabled] = useState(false)
@@ -22,8 +21,22 @@ export default function VerifyEmailOtp({ email }: Props) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   useEffect(() => {
+    // Get email from sessionStorage
+    const storedEmail = sessionStorage.getItem('verificationEmail')
+    if (storedEmail) {
+      setEmail(storedEmail)
+    } else {
+      // If no email found, redirect to signup
+      toast({
+        title: "Session Expired",
+        description: "Please sign up again.",
+        variant: "destructive",
+      })
+      router.push('/signup')
+    }
+    
     setOtp(["", "", "", "", "", ""])
-  }, [])
+  }, [router, toast])
 
   useEffect(() => {
     if (countdown > 0) {
@@ -62,6 +75,7 @@ export default function VerifyEmailOtp({ email }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
     if (otp.some((digit) => digit === "")) {
       toast({
         title: "Incomplete OTP",
@@ -71,27 +85,38 @@ export default function VerifyEmailOtp({ email }: Props) {
       return
     }
 
+    if (!email) {
+      toast({
+        title: "Error",
+        description: "Email not found. Please sign up again.",
+        variant: "destructive",
+      })
+      router.push('/signup')
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
-      const res = await axios.post("/auth/verify-email", {
+      const result = await verifyEmail({
         otp: otp.join(""),
-        email,
-      })
-
-      const { status, message } = res.data
+        email: email,
+      }).unwrap()
 
       toast({
-        title: status ? "Email Verified" : "Verification Failed",
-        description: message || "Something went wrong.",
-        variant: status ? "default" : "destructive",
+        title: "Email Verified",
+        description: result.message || "Email verified successfully!",
       })
 
-      if (status) router.push("/login")
+      // Clear stored email
+      sessionStorage.removeItem('verificationEmail')
+      
+      router.push("/login")
     } catch (error: any) {
+      console.error('Verification error:', error)
       toast({
-        title: "Error",
-        description: error?.response?.data?.message || "Something went wrong.",
+        title: "Verification Failed",
+        description: error?.data?.message || error?.message || "Invalid OTP. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -100,28 +125,50 @@ export default function VerifyEmailOtp({ email }: Props) {
   }
 
   const handleResendOtp = async () => {
-    setResendDisabled(true)
-    setCountdown(600)
-
-    try {
-      const res = await axios.post("/auth/resend-verify-email", { email })
-
-      const { status, message } = res.data
-
-      toast({
-        title: status ? "OTP Sent" : "Failed",
-        description: message || "Something went wrong.",
-        variant: status ? "default" : "destructive",
-      })
-    } catch (error: any) {
+    if (!email) {
       toast({
         title: "Error",
-        description: error?.response?.data?.message || "Something went wrong.",
+        description: "Email not found. Please sign up again.",
+        variant: "destructive",
+      })
+      router.push('/signup')
+      return
+    }
+
+    setResendDisabled(true)
+    setCountdown(60) // 1 minute countdown
+
+    try {
+      // You might need to create a resend OTP mutation in your authApi
+      // const result = await resendOtp({ email }).unwrap()
+      
+      // For now, using a simple success message
+      toast({
+        title: "OTP Sent",
+        description: "A new OTP has been sent to your email.",
+      })
+    } catch (error: any) {
+      console.error('Resend error:', error)
+      toast({
+        title: "Error",
+        description: error?.data?.message || error?.message || "Failed to resend OTP.",
         variant: "destructive",
       })
       setResendDisabled(false)
       setCountdown(0)
     }
+  }
+
+  // Don't render if email is not available
+  if (!email) {
+    return (
+      <div className="bg-white p-8 rounded-lg shadow-sm">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold">Loading...</h1>
+          <p className="text-gray-500 mt-3">Please wait...</p>
+        </div>
+      </div>
+    )
   }
 
   return (

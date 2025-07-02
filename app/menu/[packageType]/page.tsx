@@ -41,6 +41,9 @@ const convertApiMealToMenuItem = (meal: any): MenuItem => {
   }
 }
 
+
+
+
 function MealCard({
   item,
   quantity,
@@ -255,7 +258,7 @@ function DaySection({
             >
               <MealCard
                 item={item}
-                quantity={quantities[item.id] || 0}
+                quantity={quantities[item.id] || 1}
                 onQuantityChange={onQuantityChange}
                 onAddToCart={onAddToCart}
               />
@@ -287,8 +290,8 @@ export default function PackageMenuPage() {
 
   const handleQuantityChange = (id: string, delta: number) => {
     setQuantities(prev => {
-      const current = prev[id] || 0
-      return { ...prev, [id]: Math.max(0, current + delta) }
+      const current = prev[id] || 1
+      return { ...prev, [id]: Math.max(1, current + delta) }
     })
   }
 
