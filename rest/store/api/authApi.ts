@@ -13,7 +13,6 @@ export interface User {
     zipCode: string
   }
   balance: number
-
   subscription?: string
   subscriptionEndDate?: string
   subscriptionStartDate?: string
@@ -25,6 +24,23 @@ export interface User {
   profileImage?: string
   referenceCode?: string
   referredBy?: string
+}
+
+// Fixed interface to match actual API response
+interface ReferredUsersResponse {
+  status: boolean  // Changed from 'success' to 'status'
+  message: string
+  data: {
+    referedUsersWithStats: {
+      _id: string
+      name: string
+      phone: string
+      email: string
+      ordersCount: number
+    }[]
+    totalReference: number
+    referenceCode: string
+  }
 }
 
 export interface LoginRequest {
@@ -119,14 +135,16 @@ export const authApi = baseApi.injectEndpoints({
       invalidatesTags: ["User", "Cart", "Order", "Subscription"],
     }),
 
-
-
     getProfile: builder.query<{ success: boolean; data: User }, void>({
       query: () => "/auth/profile",
       providesTags: ["User"],
     }),
 
-   
+    getReferredUsers: builder.query<ReferredUsersResponse, void>({
+      query: () => "/auth/get-referred-users",
+      providesTags: ["User"],
+    }),
+
     getUserById: builder.query<{ success: boolean; data: User }, string>({
       query: (id) => `/user/${id}`,
       providesTags: ["User"],
@@ -173,6 +191,7 @@ export const authApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['User'],
     }),
+
     // Balance management
     addBalance: builder.mutation<{ success: boolean; data: User }, { amount: number; paymentMethod: string }>({
       query: (balanceData) => ({
@@ -186,6 +205,7 @@ export const authApi = baseApi.injectEndpoints({
 })
 
 export const {
+  useGetReferredUsersQuery,
   useLoginMutation,
   useRegisterMutation,
   useLogoutMutation,

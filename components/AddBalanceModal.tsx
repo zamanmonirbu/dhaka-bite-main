@@ -23,6 +23,7 @@ export default function AddBalanceModal({ isOpen, onClose, onSuccess,user }: Add
     lastFourDigits: "",
     reference: "",
     mobileNumber: "",
+    payType: ""
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [createPayment, { isLoading }] = useCreatePaymentMutation()
@@ -46,6 +47,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       lastFourDigits: formData.lastFourDigits,
       reference: formData.reference,
       mobileNumber: formData.mobileNumber,
+      payType: formData.payType
     }).unwrap() // <-- Ensures you can catch specific errors
 
     toast({
@@ -80,6 +82,23 @@ const handleSubmit = async (e: React.FormEvent) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="bg-yellow-50 p-4 rounded-md mb-4">
             <p className="font-medium text-center">Bkash personal acccount: <span className="text-green-600">01860106511</span></p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Payment Method</label>
+            <select
+              name="payType"
+              value={formData.payType}
+              onChange={handleChange}
+              className="block w-full border border-gray-300 rounded-md p-2"
+              required
+            >
+              <option value="">Select payment method</option>
+              <option value="subscription">Subscription</option>
+              <option value="recharge">
+                Recharge
+              </option>
+            </select>
           </div>
           
           <div>

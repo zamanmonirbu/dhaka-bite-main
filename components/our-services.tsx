@@ -278,7 +278,7 @@ function MealCard({ item, quantity, onQuantityChange, onAddToCart }: {
   onQuantityChange: (itemId: string, change: number) => void
   onAddToCart: (item: MenuItem) => void
 }) {
-  console.log("item:", item);
+  // console.log("item:", item);
   return (
     <div className="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow duration-300">
       {/* Image Section with Discount Badge */}

@@ -7,6 +7,8 @@ export interface DeliveryAddress {
   city: string
   zipCode: string
   phone: string
+  latitude: number
+  longitude: number
 }
 
 export interface Order {

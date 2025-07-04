@@ -8,6 +8,7 @@ export interface Payment {
   userId: string;
   paymentMethod: 'bKash' | 'Nagad' | 'Rocket' | 'Card';
   status: 'pending' | 'completed' | 'failed' | 'cancelled';
+  payType:'subcription' | 'recharge';
 }
 
 

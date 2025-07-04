@@ -3,16 +3,26 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ShoppingCart, User, Menu, X, CreditCard, ChevronDown, Plus, Eye } from "lucide-react"
+import {
+  ShoppingCart,
+  User,
+  Menu,
+  X,
+  CreditCard,
+  ChevronDown,
+  Plus,
+} from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/hooks/useAuth"
 import { useCart } from "@/hooks/useCart"
 import { useDispatch } from "react-redux"
-import { logout } from "@/store/slices/authSlice"
+import { logout, updateBalance } from "@/store/slices/authSlice"
 import { useLogoutMutation } from "@/store/api/authApi"
+
 import CartModal from "./cart-modal"
 import Image from "next/image"
 import AddBalanceModal from "./AddBalanceModal"
+import axios from "axios"
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -33,14 +43,56 @@ export default function Navbar() {
     setHasMounted(true)
   }, [])
 
+  /**
+   * Directly fetches the logged‑in user's balance from the API and updates Redux state.
+   */
+  const fetchBalanceDirect = async () => {
+    try {
+      const token = localStorage.getItem("token")
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/payment/balance`, config)
+
+      const balance = res.data?.data?.balance
+      if (balance !== undefined) {
+        dispatch(updateBalance(balance))
+      }
+    } catch (error) {
+      toast({
+        title: "Failed to load balance",
+        description: "Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  /**
+   * Button click toggles visibility; on first open it also fetches the latest balance.
+   */
+  const toggleBalanceVisibility = async () => {
+    if (!isBalanceVisible) {
+      await fetchBalanceDirect()
+    }
+    setIsBalanceVisible(prev => !prev)
+  }
+
   const handleLogout = async () => {
     try {
       await logoutMutation().unwrap()
       dispatch(logout())
-      toast({ title: "Logged out", description: "You have been successfully logged out." })
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out.",
+      })
     } catch (error) {
       dispatch(logout())
-      toast({ title: "Logged out", description: "You have been logged out." })
+      toast({
+        title: "Logged out",
+        description: "You have been logged out.",
+      })
     }
     setIsDropdownOpen(false)
   }
@@ -68,11 +120,8 @@ export default function Navbar() {
 
   return (
     <>
-    <nav className="sticky top-0 z-50 bg-[#f2e2b7] py-4 shadow-sm">
-
-
+      <nav className="sticky top-0 z-50 bg-[#f2e2b7] py-4 shadow-sm">
         <div className="container-custom flex justify-between items-center">
-          {/* Logo */}
           <Link href="/" className="flex items-center">
             <Image
               src="/dhaka-bite.svg"
@@ -98,20 +147,18 @@ export default function Navbar() {
             {isAuthenticated && hasMounted && (
               <div className="flex items-center">
                 <button
-                  onClick={() => setIsBalanceVisible(prev => !prev)}
+                  onClick={toggleBalanceVisibility}
+                  onMouseEnter={() => !isBalanceVisible && fetchBalanceDirect()}
                   className="flex items-center justify-center gap-2 bg-primary text-white rounded-l-full px-4 py-2.5 h-[42px] hover:bg-white hover:text-green-900 transition-all duration-300 min-w-[140px]"
                 >
-                  <CreditCard size={16} className="text-white flex-shrink-0 " />
+                  <CreditCard size={16} className="text-white flex-shrink-0" />
                   <div className="flex items-center gap-1 overflow-hidden">
                     {isBalanceVisible ? (
                       <span className="text-sm font-medium whitespace-nowrap animate-in slide-in-from-right-2 duration-1000">
                         ৳{user?.balance?.toLocaleString() || "0"}
                       </span>
                     ) : (
-                      <div className="flex items-center gap-1 animate-in slide-in-from-left-2 duration-1000">
-                        {/* <Eye size={16} className="text-white flex-shrink-0" /> */}
-                        <span className="text-sm font-medium whitespace-nowrap">Balance</span>
-                      </div>
+                      <span className="text-sm font-medium whitespace-nowrap">Balance</span>
                     )}
                   </div>
                 </button>
@@ -174,7 +221,8 @@ export default function Navbar() {
             {isAuthenticated && hasMounted && (
               <div className="flex items-center">
                 <button
-                  onClick={() => setIsBalanceVisible(prev => !prev)}
+                  onClick={toggleBalanceVisibility}
+                  onMouseEnter={() => !isBalanceVisible && fetchBalanceDirect()}
                   className="flex items-center justify-center gap-1.5 text-primary text-xs border border-primary bg-white rounded-l-full px-3 py-2 h-[36px] hover:bg-gray-50 transition-all duration-300 min-w-[90px]"
                 >
                   <CreditCard size={14} className="flex-shrink-0" />
@@ -184,10 +232,7 @@ export default function Navbar() {
                         ৳{user?.balance?.toLocaleString() || "0"}
                       </span>
                     ) : (
-                      <div className="flex items-center gap-1 animate-in slide-in-from-left-2 duration-300">
-                        {/* <Eye size={12} className="flex-shrink-0" /> */}
-                        <span className="font-medium whitespace-nowrap">Check</span>
-                      </div>
+                      <span className="font-medium whitespace-nowrap">Check</span>
                     )}
                   </div>
                 </button>

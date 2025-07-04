@@ -16,13 +16,15 @@ import {
   LogOut,
   Search,
   Plus,
+  LayoutDashboard,
   HomeIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import AddBalanceModal from "../AddBalanceModal"
 
 const sidebarItems = [
-  { href: "/dashboard", label: "Dashboard", icon: Home },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/subscription", label: "Subscription", icon: Calendar },
   { href: "/dashboard/meal", label: "Meal Plan", icon: Utensils },
   { href: "/dashboard/references", label: "References", icon: Users },
@@ -36,6 +38,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { user } = useAuth()
 
   const [mounted, setMounted] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -44,6 +47,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const handleLogout = () => {
     dispatch(logout())
     router.push("/")
+  }
+
+  const handleAddBalance = () => {
+    setIsOpen(true)
+  }
+
+  const handleAddBalanceSuccess = () => {
+    // Add any success logic here
   }
 
   if (!mounted) {
@@ -57,9 +68,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="w-64 bg-white shadow-lg">
           <div className="p-6">
             <div className="flex items-center space-x-3">
-              {/* <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center text-white font-bold">
-                {user?.name?.charAt(0).toUpperCase() || "U"}
-              </div> */}
               <Link href="/" className="flex items-center space-x-2">
                 <HomeIcon className="h-5 w-5 text-gray-500 hover:text-gray-700" />
                 <span className="text-sm font-semibold text-gray-700 hover:text-gray-900">Home</span>
@@ -75,8 +83,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Link key={item.href} href={item.href}>
                   <Button
                     variant={isActive ? "default" : "ghost"}
-                    className={`w-full justify-start mb-2 ${isActive ? "bg-green-600 text-white" : "text-gray-700 hover:bg-gray-100"
-                      }`}
+                    className={`w-full justify-start mb-2 ${isActive ? "bg-green-600 text-white" : "text-gray-700 hover:bg-gray-100"}`}
                   >
                     <Icon className="mr-3 h-4 w-4" />
                     {item.label}
@@ -135,7 +142,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {/* Wallet */}
               <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg shadow-sm">
                 <span className="text-gray-700 font-medium">৳{user?.balance || 0}</span>
-                <button className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 text-sm flex items-center gap-1">
+                <button className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 text-sm flex items-center gap-1" onClick={handleAddBalance}>
                   <Plus size={14} />
                   <span>Add</span>
                 </button>
@@ -152,6 +159,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </div>
       </div>
+      <AddBalanceModal isOpen={isOpen} onClose={() => setIsOpen(false)} onSuccess={handleAddBalanceSuccess} user={user} />
     </ProtectedRoute>
   )
 }
+

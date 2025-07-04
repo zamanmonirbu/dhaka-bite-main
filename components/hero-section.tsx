@@ -16,7 +16,7 @@ export default function HeroSection() {
   const { data: packagesData, isLoading: packagesLoading } = useGetPackagesQuery()
   const packages = packagesData?.data || [];
 
-  console.log(packages)
+  // console.log(packages)
 
   const { data: heroImageData, isLoading: heroImagesLoading } = useGetHeroImagesQuery()
   const carouselImages = heroImageData?.data || []

@@ -46,17 +46,16 @@ export interface OrderFilters {
 export const orderApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // Create order from cart
-    createOrder: builder.mutation<{ success: boolean; data: Order }, CreateOrderRequest>({
+    createOrder: builder.mutation<{ status: boolean; data: Order }, CreateOrderRequest>({
       query: (orderData) => ({
         url: "/orders",
         method: "POST",
         body: orderData,
       }),
-      invalidatesTags: ["Order", "Cart"],
     }),
 
     // Get user's orders
-    getOrders: builder.query<{ success: boolean; data: Order[]; pagination: any }, OrderFilters>({
+    getOrders: builder.query<{ status: boolean; data: Order[]; pagination: any }, OrderFilters>({
       query: (filters = {}) => {
         const params = new URLSearchParams()
         Object.entries(filters).forEach(([key, value]) => {
@@ -70,13 +69,13 @@ export const orderApi = baseApi.injectEndpoints({
     }),
 
     // Get single order
-    getOrder: builder.query<{ success: boolean; data: Order }, string>({
+    getOrder: builder.query<{ status: boolean; data: Order }, string>({
       query: (id) => `/orders/${id}`,
       providesTags: ["Order"],
     }),
 
     // Cancel order
-    cancelOrder: builder.mutation<{ success: boolean; data: Order }, string>({
+    cancelOrder: builder.mutation<{ status: boolean; data: Order }, string>({
       query: (id) => ({
         url: `/orders/${id}/cancel`,
         method: "PUT",
@@ -85,19 +84,19 @@ export const orderApi = baseApi.injectEndpoints({
     }),
 
     // Track order
-    trackOrder: builder.query<{ success: boolean; data: any }, string>({
+    trackOrder: builder.query<{ status: boolean; data: any }, string>({
       query: (orderNumber) => `/orders/track/${orderNumber}`,
       providesTags: ["Order"],
     }),
 
     // Get order history
-    getOrderHistory: builder.query<{ success: boolean; data: Order[] }, void>({
+    getOrderHistory: builder.query<{ status: boolean; data: Order[] }, void>({
       query: () => "/orders/history",
       providesTags: ["Order"],
     }),
 
     // Reorder (create new order from previous order)
-    reorder: builder.mutation<{ success: boolean; data: Order }, string>({
+    reorder: builder.mutation<{ status: boolean; data: Order }, string>({
       query: (orderId) => ({
         url: `/orders/${orderId}/reorder`,
         method: "POST",
