@@ -102,7 +102,7 @@ export default function Footer() {
                 <li className="text-sm">
                   <span className="font-medium">Kitchen Location:</span>
                   <br />
-                  Mirbagh, Rampura, Dhaka
+                  Mirbagh, Rampura
                 </li>
                 <li className="text-sm">
                   <span className="font-medium">Email:</span> dhakabite@gmail.com

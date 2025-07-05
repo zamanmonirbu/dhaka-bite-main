@@ -83,7 +83,7 @@ export default function ContactForm() {
                   </div>
                   <div>
                     <h3 className="font-semibold">Email</h3>
-                    <p className="text-gray-600">info@dhakabite.com</p>
+                    <p className="text-gray-600">dhakabite@gmail.com</p>
                   </div>
                 </div>
 
@@ -93,7 +93,7 @@ export default function ContactForm() {
                   </div>
                   <div>
                     <h3 className="font-semibold">Address</h3>
-                    <p className="text-gray-600">123 Food Street, Gulshan</p>
+                    <p className="text-gray-600">Mirbagh, Rampura</p>
                     <p className="text-gray-600">Dhaka, Bangladesh</p>
                   </div>
                 </div>

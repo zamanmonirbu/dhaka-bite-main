@@ -11,7 +11,7 @@ import { useGetPackagesQuery } from "@/store/api/packageApi"
 export default function HeroSection() {
   const [showCopiedMessage, setShowCopiedMessage] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const phoneNumber = "01400650261"
+  const phoneNumber = "01860106511"
 
   const { data: packagesData, isLoading: packagesLoading } = useGetPackagesQuery()
   const packages = packagesData?.data || [];

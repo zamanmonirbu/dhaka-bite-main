@@ -31,7 +31,7 @@ export default function ContactInfo() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">Email</h3>
-                  <p className="text-gray-600">info@dhakabite.com</p>
+                  <p className="text-gray-600">dhakabite@gmail.com</p>
                   <p className="text-gray-600">support@dhakabite.com</p>
                 </div>
               </div>
@@ -42,7 +42,7 @@ export default function ContactInfo() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">Address</h3>
-                  <p className="text-gray-600">123 Food Street, Gulshan</p>
+                  <p className="text-gray-600">Mirbagh, Rampura, Dhaka</p>
                   <p className="text-gray-600">Dhaka, Bangladesh</p>
                 </div>
               </div>
